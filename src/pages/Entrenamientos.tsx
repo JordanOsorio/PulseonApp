@@ -8,6 +8,12 @@ interface Ejercicio {
   descripcion?: string;
   videoUrl?: string;
   imagenUrl?: string;
+  nivelDificultad?: string;
+  tipoEjercicio?: string;
+  tiposMedicion?: string[];
+  repeticiones?: number;
+  tiempoSegundos?: number;
+  pesoKg?: number;
   categoria?: {
     idCategoria: string;
     nombre: string;
@@ -65,6 +71,12 @@ export default function Entrenamientos() {
     videoUrl: "",
     imagenUrl: "",
     idCategoria: "",
+    nivelDificultad: "sin_nivel",
+    tipoEjercicio: "sin_tipo",
+    tiposMedicion: [] as string[],
+    repeticiones: undefined as number | undefined,
+    tiempoSegundos: undefined as number | undefined,
+    pesoKg: undefined as number | undefined,
     musculos: [] as string[],
     equipos: [] as string[],
   });
@@ -131,6 +143,18 @@ export default function Entrenamientos() {
   useEffect(() => {
     setCurrentPage(1);
   }, [searchTerm]);
+
+  // Prevenir scroll del body cuando el modal está abierto
+  useEffect(() => {
+    if (showDetailsModal || showEditModal || showDeleteAllModal) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "unset";
+    }
+    return () => {
+      document.body.style.overflow = "unset";
+    };
+  }, [showDetailsModal, showEditModal, showDeleteAllModal]);
 
   const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -209,6 +233,12 @@ export default function Entrenamientos() {
       videoUrl: ejercicio.videoUrl || "",
       imagenUrl: ejercicio.imagenUrl || "",
       idCategoria: ejercicio.categoria?.idCategoria || "",
+      nivelDificultad: ejercicio.nivelDificultad || "sin_nivel",
+      tipoEjercicio: ejercicio.tipoEjercicio || "sin_tipo",
+      tiposMedicion: ejercicio.tiposMedicion || [],
+      repeticiones: ejercicio.repeticiones,
+      tiempoSegundos: ejercicio.tiempoSegundos,
+      pesoKg: ejercicio.pesoKg,
       musculos: ejercicio.musculos?.map((m) => m.musculo.idMusculo) || [],
       equipos: ejercicio.equipos?.map((e) => e.equipo.idEquipo) || [],
     });
@@ -235,6 +265,12 @@ export default function Entrenamientos() {
         videoUrl: "",
         imagenUrl: "",
         idCategoria: "",
+        nivelDificultad: "sin_nivel",
+        tipoEjercicio: "sin_tipo",
+        tiposMedicion: [],
+        repeticiones: undefined,
+        tiempoSegundos: undefined,
+        pesoKg: undefined,
         musculos: [],
         equipos: [],
       });
@@ -527,18 +563,28 @@ export default function Entrenamientos() {
 
         {/* Modal de Detalles */}
         {showDetailsModal && selectedEjercicio && (
-          <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
-            <div className="relative top-20 mx-auto p-5 border w-11/12 max-w-4xl shadow-lg rounded-md bg-white">
-              <div className="flex justify-between items-center mb-4">
-                <h3 className="text-2xl font-bold text-gray-900">
-                  Detalles del Ejercicio
+          <div 
+            className="fixed inset-0 bg-gray-600 bg-opacity-50 z-50 flex items-center justify-center p-4"
+            onClick={(e) => {
+              if (e.target === e.currentTarget) {
+                setShowDetailsModal(false);
+                setSelectedEjercicio(null);
+              }
+            }}
+          >
+            <div className="bg-white rounded-lg shadow-xl w-full max-w-4xl max-h-[90vh] flex flex-col">
+              {/* Header fijo */}
+              <div className="flex justify-between items-center p-4 sm:p-6 border-b border-gray-200 flex-shrink-0">
+                <h3 className="text-xl sm:text-2xl font-bold text-gray-900 pr-4">
+                  {selectedEjercicio.nombre}
                 </h3>
                 <button
                   onClick={() => {
                     setShowDetailsModal(false);
                     setSelectedEjercicio(null);
                   }}
-                  className="text-gray-400 hover:text-gray-600"
+                  className="text-gray-400 hover:text-gray-600 flex-shrink-0"
+                  aria-label="Cerrar"
                 >
                   <svg
                     className="h-6 w-6"
@@ -556,152 +602,205 @@ export default function Entrenamientos() {
                 </button>
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                {/* Información Básica */}
-                <div className="space-y-4">
-                  <h4 className="text-lg font-semibold text-gray-700 border-b pb-2">
-                    Información Básica
-                  </h4>
-                  <div>
-                    <p className="text-sm text-gray-500">Nombre</p>
-                    <p className="text-base font-medium">
-                      {selectedEjercicio.nombre}
-                    </p>
-                  </div>
-                  {selectedEjercicio.descripcion && (
-                    <div>
-                      <p className="text-sm text-gray-500">Descripción</p>
-                      <p className="text-base font-medium">
-                        {selectedEjercicio.descripcion}
-                      </p>
-                    </div>
-                  )}
-                  {selectedEjercicio.categoria && (
-                    <div>
-                      <p className="text-sm text-gray-500">Categoría</p>
-                      <p className="text-base font-medium">
-                        {selectedEjercicio.categoria.nombre}
-                      </p>
-                    </div>
-                  )}
-                  {selectedEjercicio.videoUrl && (
-                    <div>
-                      <p className="text-sm text-gray-500">URL de Video</p>
-                      <a
-                        href={selectedEjercicio.videoUrl}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="text-base font-medium text-blue-600 hover:underline"
-                      >
-                        Ver video
-                      </a>
-                    </div>
-                  )}
-                  {selectedEjercicio.imagenUrl && (
-                    <div>
-                      <p className="text-sm text-gray-500">Imagen</p>
-                      <img
-                        src={selectedEjercicio.imagenUrl}
-                        alt={selectedEjercicio.nombre}
-                        className="mt-2 w-full max-w-xs rounded-lg"
-                      />
-                    </div>
-                  )}
-                </div>
-
-                {/* Músculos y Equipos */}
-                <div className="space-y-4">
-                  <h4 className="text-lg font-semibold text-gray-700 border-b pb-2">
-                    Músculos y Equipos
-                  </h4>
-                  <div>
-                    <p className="text-sm text-gray-500 mb-2">Músculos</p>
-                    {selectedEjercicio.musculos &&
-                    selectedEjercicio.musculos.length > 0 ? (
-                      <div className="flex flex-wrap gap-2">
-                        {selectedEjercicio.musculos.map((m) => (
-                          <span
-                            key={m.musculo.idMusculo}
-                            className="px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-sm"
-                          >
-                            {m.musculo.nombre}
-                          </span>
-                        ))}
-                      </div>
-                    ) : (
-                      <p className="text-sm text-gray-400 italic">
-                        No hay músculos asignados
-                      </p>
-                    )}
-                  </div>
-                  <div>
-                    <p className="text-sm text-gray-500 mb-2">
-                      Equipos / Implementos
-                    </p>
-                    {selectedEjercicio.equipos &&
-                    selectedEjercicio.equipos.length > 0 ? (
-                      <div className="flex flex-wrap gap-2">
-                        {selectedEjercicio.equipos.map((e) => (
-                          <span
-                            key={e.equipo.idEquipo}
-                            className="px-3 py-1 bg-green-100 text-green-800 rounded-full text-sm"
-                          >
-                            {e.equipo.nombre}
-                          </span>
-                        ))}
-                      </div>
-                    ) : (
-                      <p className="text-sm text-gray-400 italic">
-                        No hay equipos asignados
-                      </p>
-                    )}
-                  </div>
-                </div>
-
-                {/* Fechas */}
-                {(selectedEjercicio.createdAt ||
-                  selectedEjercicio.updatedAt) && (
-                  <div className="space-y-2 md:col-span-2 border-t pt-4">
-                    <h4 className="text-lg font-semibold text-gray-700">
-                      Información del Sistema
+              {/* Contenido scrolleable */}
+              <div className="overflow-y-auto flex-1 p-4 sm:p-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
+                  {/* Información Básica */}
+                  <div className="space-y-4">
+                    <h4 className="text-base sm:text-lg font-semibold text-gray-700 border-b pb-2">
+                      Información Básica
                     </h4>
-                    <div className="grid grid-cols-2 gap-4">
-                      {selectedEjercicio.createdAt && (
-                        <div>
-                          <p className="text-sm text-gray-500">
-                            Fecha de Creación
-                          </p>
-                          <p className="text-base font-medium">
-                            {new Date(
-                              selectedEjercicio.createdAt
-                            ).toLocaleString()}
-                          </p>
+                    {selectedEjercicio.descripcion && (
+                      <div>
+                        <p className="text-xs sm:text-sm text-gray-500 mb-1">Descripción</p>
+                        <p className="text-sm sm:text-base font-medium break-words">
+                          {selectedEjercicio.descripcion}
+                        </p>
+                      </div>
+                    )}
+                    {selectedEjercicio.categoria && (
+                      <div>
+                        <p className="text-xs sm:text-sm text-gray-500 mb-1">Categoría</p>
+                        <p className="text-sm sm:text-base font-medium">
+                          {selectedEjercicio.categoria.nombre}
+                        </p>
+                      </div>
+                    )}
+                    <div>
+                      <p className="text-xs sm:text-sm text-gray-500 mb-1">Nivel de Dificultad</p>
+                      <p className="text-sm sm:text-base font-medium capitalize">
+                        {selectedEjercicio.nivelDificultad === "sin_nivel" 
+                          ? "Sin nivel" 
+                          : selectedEjercicio.nivelDificultad || "Sin nivel"}
+                      </p>
+                    </div>
+                    <div>
+                      <p className="text-xs sm:text-sm text-gray-500 mb-1">Tipo de Ejercicio</p>
+                      <p className="text-sm sm:text-base font-medium capitalize">
+                        {selectedEjercicio.tipoEjercicio === "sin_tipo" 
+                          ? "Sin tipo" 
+                          : selectedEjercicio.tipoEjercicio || "Sin tipo"}
+                      </p>
+                    </div>
+                    {selectedEjercicio.tiposMedicion && selectedEjercicio.tiposMedicion.length > 0 && (
+                      <div>
+                        <p className="text-xs sm:text-sm text-gray-500 mb-2">Tipos de Medición</p>
+                        <div className="flex flex-wrap gap-2">
+                          {selectedEjercicio.tiposMedicion.map((tipo) => (
+                            <span
+                              key={tipo}
+                              className="px-2 sm:px-3 py-1 bg-purple-100 text-purple-800 rounded-full text-xs sm:text-sm capitalize"
+                            >
+                              {tipo === "repeticion" ? "Repetición" : tipo === "tiempo" ? "Tiempo" : "Peso"}
+                            </span>
+                          ))}
                         </div>
+                      </div>
+                    )}
+                    {selectedEjercicio.tiposMedicion?.includes("repeticion") && selectedEjercicio.repeticiones && (
+                      <div>
+                        <p className="text-xs sm:text-sm text-gray-500 mb-1">Repeticiones</p>
+                        <p className="text-sm sm:text-base font-medium">
+                          {selectedEjercicio.repeticiones}
+                        </p>
+                      </div>
+                    )}
+                    {selectedEjercicio.tiposMedicion?.includes("tiempo") && selectedEjercicio.tiempoSegundos && (
+                      <div>
+                        <p className="text-xs sm:text-sm text-gray-500 mb-1">Tiempo</p>
+                        <p className="text-sm sm:text-base font-medium">
+                          {selectedEjercicio.tiempoSegundos} segundos
+                        </p>
+                      </div>
+                    )}
+                    {selectedEjercicio.tiposMedicion?.includes("peso") && selectedEjercicio.pesoKg && (
+                      <div>
+                        <p className="text-xs sm:text-sm text-gray-500 mb-1">Peso</p>
+                        <p className="text-sm sm:text-base font-medium">
+                          {selectedEjercicio.pesoKg} kg
+                        </p>
+                      </div>
+                    )}
+                    {selectedEjercicio.videoUrl && (
+                      <div>
+                        <p className="text-xs sm:text-sm text-gray-500 mb-1">URL de Video</p>
+                        <a
+                          href={selectedEjercicio.videoUrl}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-sm sm:text-base font-medium text-blue-600 hover:underline break-all"
+                        >
+                          Ver video
+                        </a>
+                      </div>
+                    )}
+                    {selectedEjercicio.imagenUrl && (
+                      <div>
+                        <p className="text-xs sm:text-sm text-gray-500 mb-2">Imagen</p>
+                        <img
+                          src={selectedEjercicio.imagenUrl}
+                          alt={selectedEjercicio.nombre}
+                          className="w-full max-w-xs rounded-lg"
+                        />
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Músculos y Equipos */}
+                  <div className="space-y-4">
+                    <h4 className="text-base sm:text-lg font-semibold text-gray-700 border-b pb-2">
+                      Músculos y Equipos
+                    </h4>
+                    <div>
+                      <p className="text-xs sm:text-sm text-gray-500 mb-2">Músculos</p>
+                      {selectedEjercicio.musculos &&
+                      selectedEjercicio.musculos.length > 0 ? (
+                        <div className="flex flex-wrap gap-2">
+                          {selectedEjercicio.musculos.map((m) => (
+                            <span
+                              key={m.musculo.idMusculo}
+                              className="px-2 sm:px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-xs sm:text-sm"
+                            >
+                              {m.musculo.nombre}
+                            </span>
+                          ))}
+                        </div>
+                      ) : (
+                        <p className="text-xs sm:text-sm text-gray-400 italic">
+                          No hay músculos asignados
+                        </p>
                       )}
-                      {selectedEjercicio.updatedAt && (
-                        <div>
-                          <p className="text-sm text-gray-500">
-                            Última Actualización
-                          </p>
-                          <p className="text-base font-medium">
-                            {new Date(
-                              selectedEjercicio.updatedAt
-                            ).toLocaleString()}
-                          </p>
+                    </div>
+                    <div>
+                      <p className="text-xs sm:text-sm text-gray-500 mb-2">
+                        Equipos / Implementos
+                      </p>
+                      {selectedEjercicio.equipos &&
+                      selectedEjercicio.equipos.length > 0 ? (
+                        <div className="flex flex-wrap gap-2">
+                          {selectedEjercicio.equipos.map((e) => (
+                            <span
+                              key={e.equipo.idEquipo}
+                              className="px-2 sm:px-3 py-1 bg-green-100 text-green-800 rounded-full text-xs sm:text-sm"
+                            >
+                              {e.equipo.nombre}
+                            </span>
+                          ))}
                         </div>
+                      ) : (
+                        <p className="text-xs sm:text-sm text-gray-400 italic">
+                          No hay equipos asignados
+                        </p>
                       )}
                     </div>
                   </div>
-                )}
+
+                  {/* Fechas */}
+                  {(selectedEjercicio.createdAt ||
+                    selectedEjercicio.updatedAt) && (
+                    <div className="space-y-2 md:col-span-2 border-t pt-4">
+                      <h4 className="text-base sm:text-lg font-semibold text-gray-700 mb-3">
+                        Información del Sistema
+                      </h4>
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        {selectedEjercicio.createdAt && (
+                          <div>
+                            <p className="text-xs sm:text-sm text-gray-500 mb-1">
+                              Fecha de Creación
+                            </p>
+                            <p className="text-sm sm:text-base font-medium">
+                              {new Date(
+                                selectedEjercicio.createdAt
+                              ).toLocaleString()}
+                            </p>
+                          </div>
+                        )}
+                        {selectedEjercicio.updatedAt && (
+                          <div>
+                            <p className="text-xs sm:text-sm text-gray-500 mb-1">
+                              Última Actualización
+                            </p>
+                            <p className="text-sm sm:text-base font-medium">
+                              {new Date(
+                                selectedEjercicio.updatedAt
+                              ).toLocaleString()}
+                            </p>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  )}
+                </div>
               </div>
 
-              <div className="mt-6 flex justify-end">
+              {/* Footer fijo */}
+              <div className="flex justify-end p-4 sm:p-6 border-t border-gray-200 flex-shrink-0">
                 <button
                   onClick={() => {
                     setShowDetailsModal(false);
                     setSelectedEjercicio(null);
                   }}
-                  className="px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700"
+                  className="px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 text-sm sm:text-base"
                 >
                   Cerrar
                 </button>
@@ -712,8 +811,15 @@ export default function Entrenamientos() {
 
         {/* Modal de Confirmación Eliminar Todos */}
         {showDeleteAllModal && (
-          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-            <div className="bg-white rounded-lg p-6 w-full max-w-md">
+          <div 
+            className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4"
+            onClick={(e) => {
+              if (e.target === e.currentTarget) {
+                setShowDeleteAllModal(false);
+              }
+            }}
+          >
+            <div className="bg-white rounded-lg p-4 sm:p-6 w-full max-w-md">
               <h2 className="text-2xl font-bold mb-4 text-red-600">
                 Confirmar Eliminación
               </h2>
@@ -759,11 +865,36 @@ export default function Entrenamientos() {
 
         {/* Modal de Edición */}
         {showEditModal && (
-          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 overflow-y-auto">
-            <div className="bg-white rounded-lg p-6 w-full max-w-2xl my-8">
-              <h2 className="text-2xl font-bold mb-4">Editar Ejercicio</h2>
-              <form onSubmit={handleSubmit} className="space-y-4">
-                <div>
+          <div 
+            className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4"
+            onClick={(e) => {
+              if (e.target === e.currentTarget) {
+                setShowEditModal(false);
+                setEditing(null);
+                setFormData({
+                  nombre: "",
+                  descripcion: "",
+                  videoUrl: "",
+                  imagenUrl: "",
+                  idCategoria: "",
+                  nivelDificultad: "sin_nivel",
+                  tipoEjercicio: "sin_tipo",
+                  tiposMedicion: [],
+                  repeticiones: undefined,
+                  tiempoSegundos: undefined,
+                  pesoKg: undefined,
+                  musculos: [],
+                  equipos: [],
+                });
+              }
+            }}
+          >
+            <div className="bg-white rounded-lg w-full max-w-2xl max-h-[90vh] flex flex-col">
+              <form onSubmit={handleSubmit} className="flex flex-col flex-1 min-h-0">
+                <div className="overflow-y-auto flex-1 p-4 sm:p-6">
+                  <h2 className="text-xl sm:text-2xl font-bold mb-4">Editar Ejercicio</h2>
+                  <div className="space-y-4">
+                    <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
                     Nombre *
                   </label>
@@ -835,6 +966,142 @@ export default function Entrenamientos() {
                     ))}
                   </select>
                 </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Nivel de Dificultad
+                  </label>
+                  <select
+                    value={formData.nivelDificultad}
+                    onChange={(e) =>
+                      setFormData({ ...formData, nivelDificultad: e.target.value })
+                    }
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg"
+                  >
+                    <option value="sin_nivel">Sin nivel</option>
+                    <option value="preparatorio">Preparatorio</option>
+                    <option value="intermedio">Intermedio</option>
+                    <option value="avanzado">Avanzado</option>
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Tipo de Ejercicio
+                  </label>
+                  <select
+                    value={formData.tipoEjercicio}
+                    onChange={(e) =>
+                      setFormData({ ...formData, tipoEjercicio: e.target.value })
+                    }
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg"
+                  >
+                    <option value="sin_tipo">Sin tipo</option>
+                    <option value="dinamicos">Dinámicos</option>
+                    <option value="basicos">Básicos</option>
+                    <option value="complementarios">Complementarios</option>
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Tipos de Medición
+                  </label>
+                  <div className="space-y-2">
+                    {["repeticion", "tiempo", "peso"].map((tipo) => (
+                      <label
+                        key={tipo}
+                        className="flex items-center space-x-2"
+                      >
+                        <input
+                          type="checkbox"
+                          checked={formData.tiposMedicion.includes(tipo)}
+                          onChange={(e) => {
+                            if (e.target.checked) {
+                              setFormData({
+                                ...formData,
+                                tiposMedicion: [...formData.tiposMedicion, tipo],
+                              });
+                            } else {
+                              setFormData({
+                                ...formData,
+                                tiposMedicion: formData.tiposMedicion.filter(
+                                  (t) => t !== tipo
+                                ),
+                                // Limpiar campos relacionados si se desmarca
+                                repeticiones: tipo === "repeticion" ? undefined : formData.repeticiones,
+                                tiempoSegundos: tipo === "tiempo" ? undefined : formData.tiempoSegundos,
+                                pesoKg: tipo === "peso" ? undefined : formData.pesoKg,
+                              });
+                            }
+                          }}
+                          className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                        />
+                        <span className="text-sm text-gray-700 capitalize">
+                          {tipo === "repeticion" ? "Repetición" : tipo === "tiempo" ? "Tiempo" : "Peso"}
+                        </span>
+                      </label>
+                    ))}
+                  </div>
+                </div>
+                {formData.tiposMedicion.includes("repeticion") && (
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Repeticiones
+                    </label>
+                    <input
+                      type="number"
+                      min="1"
+                      value={formData.repeticiones || ""}
+                      onChange={(e) =>
+                        setFormData({
+                          ...formData,
+                          repeticiones: e.target.value ? parseInt(e.target.value) : undefined,
+                        })
+                      }
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg"
+                      placeholder="Ej: 10"
+                    />
+                  </div>
+                )}
+                {formData.tiposMedicion.includes("tiempo") && (
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Tiempo (segundos)
+                    </label>
+                    <input
+                      type="number"
+                      min="1"
+                      value={formData.tiempoSegundos || ""}
+                      onChange={(e) =>
+                        setFormData({
+                          ...formData,
+                          tiempoSegundos: e.target.value ? parseInt(e.target.value) : undefined,
+                        })
+                      }
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg"
+                      placeholder="Ej: 30"
+                    />
+                  </div>
+                )}
+                {formData.tiposMedicion.includes("peso") && (
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Peso (kg)
+                    </label>
+                    <input
+                      type="number"
+                      min="0"
+                      step="0.1"
+                      value={formData.pesoKg || ""}
+                      onChange={(e) =>
+                        setFormData({
+                          ...formData,
+                          pesoKg: e.target.value ? parseFloat(e.target.value) : undefined,
+                        })
+                      }
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg"
+                      placeholder="Ej: 20.5"
+                    />
+                  </div>
+                )}
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
                     Músculos
@@ -929,7 +1196,9 @@ export default function Entrenamientos() {
                     )}
                   </div>
                 </div>
-                <div className="flex space-x-2">
+                  </div>
+                </div>
+                <div className="flex space-x-2 p-4 sm:p-6 border-t border-gray-200 flex-shrink-0">
                   <button
                     type="button"
                     onClick={() => {
@@ -941,17 +1210,23 @@ export default function Entrenamientos() {
                         videoUrl: "",
                         imagenUrl: "",
                         idCategoria: "",
+                        nivelDificultad: "sin_nivel",
+                        tipoEjercicio: "sin_tipo",
+                        tiposMedicion: [],
+                        repeticiones: undefined,
+                        tiempoSegundos: undefined,
+                        pesoKg: undefined,
                         musculos: [],
                         equipos: [],
                       });
                     }}
-                    className="flex-1 px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50"
+                    className="flex-1 px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 text-sm sm:text-base"
                   >
                     Cancelar
                   </button>
                   <button
                     type="submit"
-                    className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+                    className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 text-sm sm:text-base"
                   >
                     Guardar
                   </button>
