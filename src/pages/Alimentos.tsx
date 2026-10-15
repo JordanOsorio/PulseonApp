@@ -1,6 +1,8 @@
 import { useEffect, useState } from "react";
 import Layout from "../components/Layout";
+import SelectorArchivo from "../components/SelectorArchivo";
 import api from "../services/api";
+import { urlMedia } from "../services/media";
 
 interface Alimento {
   idAlimento: string;
@@ -29,6 +31,7 @@ interface Alimento {
   fibraPorPorcion?: number;
   sodioPorPorcion?: number;
   dataSource?: string;
+  imagenStorageUrl?: string | null;
   createdAt?: string;
   updatedAt?: string;
 }
@@ -47,6 +50,11 @@ export default function Alimentos() {
     null
   );
   const [showDetailsModal, setShowDetailsModal] = useState(false);
+  const [editingAlimento, setEditingAlimento] = useState<Alimento | null>(null);
+  const [imagenArchivo, setImagenArchivo] = useState<File | null>(null);
+  const [quitarImagen, setQuitarImagen] = useState(false);
+  const [imagenPreviewLocal, setImagenPreviewLocal] = useState("");
+  const [guardando, setGuardando] = useState(false);
 
   const fetchAlimentos = async () => {
     setLoading(true);
@@ -71,6 +79,59 @@ export default function Alimentos() {
   useEffect(() => {
     fetchAlimentos();
   }, [searchTerm]);
+
+  useEffect(() => {
+    if (!imagenArchivo) {
+      setImagenPreviewLocal("");
+      return;
+    }
+    const url = URL.createObjectURL(imagenArchivo);
+    setImagenPreviewLocal(url);
+    return () => URL.revokeObjectURL(url);
+  }, [imagenArchivo]);
+
+  const abrirEdicion = (alimento: Alimento) => {
+    setEditingAlimento(alimento);
+    setImagenArchivo(null);
+    setQuitarImagen(false);
+  };
+
+  const cerrarEdicion = () => {
+    setEditingAlimento(null);
+    setImagenArchivo(null);
+    setQuitarImagen(false);
+  };
+
+  const guardarImagen = async () => {
+    if (!editingAlimento) return;
+    if (!imagenArchivo && !quitarImagen) {
+      cerrarEdicion();
+      return;
+    }
+
+    setGuardando(true);
+    try {
+      if (imagenArchivo) {
+        const datos = new FormData();
+        datos.append("imagen", imagenArchivo);
+        await api.post(`/alimentos/${editingAlimento.idAlimento}/imagen`, datos, {
+          headers: { "Content-Type": "multipart/form-data" },
+        });
+      } else if (quitarImagen) {
+        await api.delete(`/alimentos/${editingAlimento.idAlimento}/imagen`);
+      }
+      setMessage({ type: "success", text: "Imagen del alimento actualizada" });
+      cerrarEdicion();
+      fetchAlimentos();
+    } catch (error: any) {
+      setMessage({
+        type: "error",
+        text: error.response?.data?.message || "Error al guardar la imagen",
+      });
+    } finally {
+      setGuardando(false);
+    }
+  };
 
   const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -223,6 +284,7 @@ export default function Alimentos() {
                         {alimento.grasaTotal?.toFixed(1) || "-"}g
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                        <div className="flex space-x-2">
                         <button
                           onClick={() => {
                             setSelectedAlimento(alimento);
@@ -252,6 +314,27 @@ export default function Alimentos() {
                             />
                           </svg>
                         </button>
+                        <button
+                          onClick={() => abrirEdicion(alimento)}
+                          className="text-green-600 hover:text-green-800 focus:outline-none"
+                          title="Editar imagen"
+                        >
+                          <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            className="h-5 w-5"
+                            fill="none"
+                            viewBox="0 0 24 24"
+                            stroke="currentColor"
+                          >
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              strokeWidth={2}
+                              d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
+                            />
+                          </svg>
+                        </button>
+                        </div>
                       </td>
                     </tr>
                   ))}
@@ -291,6 +374,14 @@ export default function Alimentos() {
                   </svg>
                 </button>
               </div>
+
+              {selectedAlimento.imagenStorageUrl && (
+                <img
+                  src={urlMedia(selectedAlimento.imagenStorageUrl)}
+                  alt={selectedAlimento.nombre}
+                  className="mb-6 h-40 w-auto rounded-lg object-cover"
+                />
+              )}
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 {/* Información Básica */}
@@ -567,6 +658,78 @@ export default function Alimentos() {
                   className="px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700"
                 >
                   Cerrar
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {editingAlimento && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 p-4">
+            <div className="w-full max-w-lg rounded-lg bg-white p-6 shadow-lg">
+              <h3 className="text-xl font-bold text-gray-900">Imagen del alimento</h3>
+              <p className="mt-1 text-sm text-gray-600">{editingAlimento.nombre}</p>
+              <p className="mt-3 text-sm text-gray-500">
+                La imagen es opcional. Podés cargarla o dejar el alimento sin foto.
+              </p>
+
+              <div className="mt-4">
+                {!quitarImagen &&
+                  (imagenPreviewLocal || editingAlimento.imagenStorageUrl) && (
+                    <img
+                      src={
+                        imagenPreviewLocal ||
+                        urlMedia(editingAlimento.imagenStorageUrl)
+                      }
+                      alt={editingAlimento.nombre}
+                      className="mb-3 h-36 w-auto rounded-lg object-cover"
+                    />
+                  )}
+                {quitarImagen && (
+                  <p className="mb-3 text-xs text-amber-700">
+                    La imagen se quitará al guardar.
+                  </p>
+                )}
+                <SelectorArchivo
+                  accept="image/jpeg,image/png,image/webp,image/gif"
+                  archivo={imagenArchivo}
+                  texto="Elegir imagen"
+                  ayuda="JPG, PNG, WEBP o GIF. Máximo 5 MB."
+                  onArchivo={(archivo) => {
+                    setImagenArchivo(archivo);
+                    if (archivo) setQuitarImagen(false);
+                  }}
+                />
+                {(imagenArchivo ||
+                  (editingAlimento.imagenStorageUrl && !quitarImagen)) && (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setQuitarImagen(true);
+                      setImagenArchivo(null);
+                    }}
+                    className="mt-3 inline-flex items-center rounded-lg border border-red-200 bg-red-50 px-3 py-1.5 text-sm font-medium text-red-700 hover:bg-red-100"
+                  >
+                    Quitar imagen
+                  </button>
+                )}
+              </div>
+
+              <div className="mt-6 flex space-x-2">
+                <button
+                  type="button"
+                  onClick={cerrarEdicion}
+                  className="flex-1 rounded-lg border border-gray-300 px-4 py-2 hover:bg-gray-50"
+                >
+                  Cancelar
+                </button>
+                <button
+                  type="button"
+                  onClick={guardarImagen}
+                  disabled={guardando}
+                  className="flex-1 rounded-lg bg-blue-600 px-4 py-2 font-medium text-white hover:bg-blue-700 disabled:opacity-60"
+                >
+                  {guardando ? "Guardando..." : "Guardar"}
                 </button>
               </div>
             </div>

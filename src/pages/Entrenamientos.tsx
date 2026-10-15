@@ -1,6 +1,26 @@
 import { useEffect, useState } from "react";
 import Layout from "../components/Layout";
+import SelectorArchivo from "../components/SelectorArchivo";
 import api from "../services/api";
+import { urlMedia } from "../services/media";
+
+const formularioVacio = () => ({
+  nombre: "",
+  descripcion: "",
+  videoUrl: "",
+  imagenUrl: "",
+  imagenStorageUrl: "",
+  videoStorageUrl: "",
+  idCategoria: "",
+  nivelDificultad: "sin_nivel",
+  tipoEjercicio: "sin_tipo",
+  tiposMedicion: [] as string[],
+  repeticiones: undefined as number | undefined,
+  tiempoSegundos: undefined as number | undefined,
+  pesoKg: undefined as number | undefined,
+  musculos: [] as string[],
+  equipos: [] as string[],
+});
 
 interface Ejercicio {
   idEjercicio: string;
@@ -8,6 +28,8 @@ interface Ejercicio {
   descripcion?: string;
   videoUrl?: string;
   imagenUrl?: string;
+  imagenStorageUrl?: string | null;
+  videoStorageUrl?: string | null;
   nivelDificultad?: string;
   tipoEjercicio?: string;
   tiposMedicion?: string[];
@@ -65,21 +87,14 @@ export default function Entrenamientos() {
   const [showEditModal, setShowEditModal] = useState(false);
   const [showDeleteAllModal, setShowDeleteAllModal] = useState(false);
   const [editing, setEditing] = useState<Ejercicio | null>(null);
-  const [formData, setFormData] = useState({
-    nombre: "",
-    descripcion: "",
-    videoUrl: "",
-    imagenUrl: "",
-    idCategoria: "",
-    nivelDificultad: "sin_nivel",
-    tipoEjercicio: "sin_tipo",
-    tiposMedicion: [] as string[],
-    repeticiones: undefined as number | undefined,
-    tiempoSegundos: undefined as number | undefined,
-    pesoKg: undefined as number | undefined,
-    musculos: [] as string[],
-    equipos: [] as string[],
-  });
+  const [formData, setFormData] = useState(formularioVacio());
+  const [imagenArchivo, setImagenArchivo] = useState<File | null>(null);
+  const [videoArchivo, setVideoArchivo] = useState<File | null>(null);
+  const [quitarImagen, setQuitarImagen] = useState(false);
+  const [quitarVideo, setQuitarVideo] = useState(false);
+  const [guardando, setGuardando] = useState(false);
+  const [imagenPreviewLocal, setImagenPreviewLocal] = useState("");
+  const [videoPreviewLocal, setVideoPreviewLocal] = useState("");
 
   const fetchEjercicios = async () => {
     setLoading(true);
@@ -156,6 +171,36 @@ export default function Entrenamientos() {
     };
   }, [showDetailsModal, showEditModal, showDeleteAllModal]);
 
+  useEffect(() => {
+    if (!imagenArchivo) {
+      setImagenPreviewLocal("");
+      return;
+    }
+    const url = URL.createObjectURL(imagenArchivo);
+    setImagenPreviewLocal(url);
+    return () => URL.revokeObjectURL(url);
+  }, [imagenArchivo]);
+
+  useEffect(() => {
+    if (!videoArchivo) {
+      setVideoPreviewLocal("");
+      return;
+    }
+    const url = URL.createObjectURL(videoArchivo);
+    setVideoPreviewLocal(url);
+    return () => URL.revokeObjectURL(url);
+  }, [videoArchivo]);
+
+  const cerrarEdicion = () => {
+    setShowEditModal(false);
+    setEditing(null);
+    setFormData(formularioVacio());
+    setImagenArchivo(null);
+    setVideoArchivo(null);
+    setQuitarImagen(false);
+    setQuitarVideo(false);
+  };
+
   const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
@@ -227,11 +272,17 @@ export default function Entrenamientos() {
 
   const handleEdit = (ejercicio: Ejercicio) => {
     setEditing(ejercicio);
+    setImagenArchivo(null);
+    setVideoArchivo(null);
+    setQuitarImagen(false);
+    setQuitarVideo(false);
     setFormData({
       nombre: ejercicio.nombre,
       descripcion: ejercicio.descripcion || "",
       videoUrl: ejercicio.videoUrl || "",
       imagenUrl: ejercicio.imagenUrl || "",
+      imagenStorageUrl: ejercicio.imagenStorageUrl || "",
+      videoStorageUrl: ejercicio.videoStorageUrl || "",
       idCategoria: ejercicio.categoria?.idCategoria || "",
       nivelDificultad: ejercicio.nivelDificultad || "sin_nivel",
       tipoEjercicio: ejercicio.tipoEjercicio || "sin_tipo",
@@ -247,33 +298,68 @@ export default function Entrenamientos() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!editing) return;
+
+    setGuardando(true);
     try {
-      const data = {
+      const data: {
+        nombre: string;
+        descripcion: string;
+        videoUrl: string;
+        imagenUrl: string;
+        imagenStorageUrl?: string | null;
+        videoStorageUrl?: string | null;
+        idCategoria?: string;
+        nivelDificultad: string;
+        tipoEjercicio: string;
+        tiposMedicion: string[];
+        repeticiones?: number;
+        tiempoSegundos?: number;
+        pesoKg?: number;
+        musculos: string[];
+        equipos: string[];
+      } = {
         ...formData,
         idCategoria: formData.idCategoria || undefined,
       };
 
-      if (editing) {
-        await api.put(`/ejercicios/${editing.idEjercicio}`, data);
+      if (!formData.imagenStorageUrl) {
+        delete data.imagenStorageUrl;
+      }
+      if (!formData.videoStorageUrl) {
+        delete data.videoStorageUrl;
+      }
+      if (quitarImagen && !imagenArchivo) {
+        data.imagenStorageUrl = null;
+        data.imagenUrl = "";
+      }
+      if (quitarVideo && !videoArchivo) {
+        data.videoStorageUrl = null;
       }
 
-      setShowEditModal(false);
-      setEditing(null);
-      setFormData({
-        nombre: "",
-        descripcion: "",
-        videoUrl: "",
-        imagenUrl: "",
-        idCategoria: "",
-        nivelDificultad: "sin_nivel",
-        tipoEjercicio: "sin_tipo",
-        tiposMedicion: [],
-        repeticiones: undefined,
-        tiempoSegundos: undefined,
-        pesoKg: undefined,
-        musculos: [],
-        equipos: [],
-      });
+      await api.put(`/ejercicios/${editing.idEjercicio}`, data);
+
+      if (imagenArchivo || videoArchivo) {
+        const archivos = new FormData();
+        if (imagenArchivo) archivos.append("imagen", imagenArchivo);
+        if (videoArchivo) archivos.append("video", videoArchivo);
+        try {
+          await api.post(`/ejercicios/${editing.idEjercicio}/archivos`, archivos, {
+            headers: { "Content-Type": "multipart/form-data" },
+          });
+        } catch (error: any) {
+          setMessage({
+            type: "error",
+            text:
+              error.response?.data?.message ||
+              "Los datos se guardaron, pero no se pudo subir el archivo",
+          });
+          fetchEjercicios();
+          return;
+        }
+      }
+
+      cerrarEdicion();
       setMessage({
         type: "success",
         text: "Ejercicio actualizado exitosamente",
@@ -284,6 +370,8 @@ export default function Entrenamientos() {
         type: "error",
         text: error.response?.data?.message || "Error al guardar ejercicio",
       });
+    } finally {
+      setGuardando(false);
     }
   };
 
@@ -694,11 +782,23 @@ export default function Entrenamientos() {
                         </a>
                       </div>
                     )}
-                    {selectedEjercicio.imagenUrl && (
+                    {selectedEjercicio.videoStorageUrl && (
+                      <div>
+                        <p className="text-xs sm:text-sm text-gray-500 mb-2">Video cargado</p>
+                        <video
+                          controls
+                          src={urlMedia(selectedEjercicio.videoStorageUrl)}
+                          className="w-full max-w-md rounded-lg"
+                        />
+                      </div>
+                    )}
+                    {(selectedEjercicio.imagenStorageUrl || selectedEjercicio.imagenUrl) && (
                       <div>
                         <p className="text-xs sm:text-sm text-gray-500 mb-2">Imagen</p>
                         <img
-                          src={selectedEjercicio.imagenUrl}
+                          src={urlMedia(
+                            selectedEjercicio.imagenStorageUrl || selectedEjercicio.imagenUrl
+                          )}
                           alt={selectedEjercicio.nombre}
                           className="w-full max-w-xs rounded-lg"
                         />
@@ -869,23 +969,7 @@ export default function Entrenamientos() {
             className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4"
             onClick={(e) => {
               if (e.target === e.currentTarget) {
-                setShowEditModal(false);
-                setEditing(null);
-                setFormData({
-                  nombre: "",
-                  descripcion: "",
-                  videoUrl: "",
-                  imagenUrl: "",
-                  idCategoria: "",
-                  nivelDificultad: "sin_nivel",
-                  tipoEjercicio: "sin_tipo",
-                  tiposMedicion: [],
-                  repeticiones: undefined,
-                  tiempoSegundos: undefined,
-                  pesoKg: undefined,
-                  musculos: [],
-                  equipos: [],
-                });
+                cerrarEdicion();
               }
             }}
           >
@@ -921,9 +1005,12 @@ export default function Entrenamientos() {
                     rows={3}
                   />
                 </div>
+                <p className="text-sm text-gray-500">
+                  La URL de video, la imagen y el video son opcionales. Podés cargar uno, varios o ninguno.
+                </p>
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
-                    URL de Video
+                    URL de video <span className="font-normal text-gray-500">(opcional)</span>
                   </label>
                   <input
                     type="url"
@@ -931,21 +1018,98 @@ export default function Entrenamientos() {
                     onChange={(e) =>
                       setFormData({ ...formData, videoUrl: e.target.value })
                     }
+                    placeholder="https://..."
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg"
                   />
+                  <p className="mt-1 text-xs text-gray-500">
+                    Enlace externo, por ejemplo YouTube o Vimeo.
+                  </p>
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
-                    URL de Imagen
+                    Imagen <span className="font-normal text-gray-500">(opcional)</span>
                   </label>
-                  <input
-                    type="url"
-                    value={formData.imagenUrl}
-                    onChange={(e) =>
-                      setFormData({ ...formData, imagenUrl: e.target.value })
-                    }
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg"
+                  {!quitarImagen &&
+                    (imagenPreviewLocal ||
+                      formData.imagenStorageUrl ||
+                      formData.imagenUrl) && (
+                      <img
+                        src={
+                          imagenPreviewLocal ||
+                          urlMedia(formData.imagenStorageUrl || formData.imagenUrl)
+                        }
+                        alt="Imagen del ejercicio"
+                        className="mb-2 h-32 w-auto rounded-lg object-cover"
+                      />
+                    )}
+                  {quitarImagen && (
+                    <p className="mb-2 text-xs text-amber-700">
+                      La imagen se quitará al guardar.
+                    </p>
+                  )}
+                  <SelectorArchivo
+                    accept="image/jpeg,image/png,image/webp,image/gif"
+                    archivo={imagenArchivo}
+                    texto="Elegir imagen"
+                    ayuda="JPG, PNG, WEBP o GIF. Máximo 5 MB."
+                    onArchivo={(archivo) => {
+                      setImagenArchivo(archivo);
+                      if (archivo) setQuitarImagen(false);
+                    }}
                   />
+                  {(imagenArchivo ||
+                    ((formData.imagenStorageUrl || formData.imagenUrl) &&
+                      !quitarImagen)) && (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setQuitarImagen(true);
+                        setImagenArchivo(null);
+                      }}
+                      className="mt-3 inline-flex items-center rounded-lg border border-red-200 bg-red-50 px-3 py-1.5 text-sm font-medium text-red-700 hover:bg-red-100"
+                    >
+                      Quitar imagen
+                    </button>
+                  )}
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Video <span className="font-normal text-gray-500">(opcional)</span>
+                  </label>
+                  {!quitarVideo && (videoPreviewLocal || formData.videoStorageUrl) && (
+                    <video
+                      controls
+                      src={videoPreviewLocal || urlMedia(formData.videoStorageUrl)}
+                      className="mb-2 max-h-40 w-full rounded-lg"
+                    />
+                  )}
+                  {quitarVideo && (
+                    <p className="mb-2 text-xs text-amber-700">
+                      El video se quitará al guardar.
+                    </p>
+                  )}
+                  <SelectorArchivo
+                    accept="video/mp4,video/webm,video/quicktime,video/ogg"
+                    archivo={videoArchivo}
+                    texto="Elegir video"
+                    ayuda="MP4, WEBM, MOV u OGG. Máximo 25 MB. El archivo se guarda en el servidor."
+                    onArchivo={(archivo) => {
+                      setVideoArchivo(archivo);
+                      if (archivo) setQuitarVideo(false);
+                    }}
+                  />
+                  {(videoArchivo || (formData.videoStorageUrl && !quitarVideo)) && (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setQuitarVideo(true);
+                        setVideoArchivo(null);
+                      }}
+                      className="mt-3 inline-flex items-center rounded-lg border border-red-200 bg-red-50 px-3 py-1.5 text-sm font-medium text-red-700 hover:bg-red-100"
+                    >
+                      Quitar video
+                    </button>
+                  )}
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -1201,34 +1365,17 @@ export default function Entrenamientos() {
                 <div className="flex space-x-2 p-4 sm:p-6 border-t border-gray-200 flex-shrink-0">
                   <button
                     type="button"
-                    onClick={() => {
-                      setShowEditModal(false);
-                      setEditing(null);
-                      setFormData({
-                        nombre: "",
-                        descripcion: "",
-                        videoUrl: "",
-                        imagenUrl: "",
-                        idCategoria: "",
-                        nivelDificultad: "sin_nivel",
-                        tipoEjercicio: "sin_tipo",
-                        tiposMedicion: [],
-                        repeticiones: undefined,
-                        tiempoSegundos: undefined,
-                        pesoKg: undefined,
-                        musculos: [],
-                        equipos: [],
-                      });
-                    }}
+                    onClick={cerrarEdicion}
                     className="flex-1 px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 text-sm sm:text-base"
                   >
                     Cancelar
                   </button>
                   <button
                     type="submit"
-                    className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 text-sm sm:text-base"
+                    disabled={guardando}
+                    className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 text-sm sm:text-base disabled:opacity-60"
                   >
-                    Guardar
+                    {guardando ? "Guardando..." : "Guardar"}
                   </button>
                 </div>
               </form>
