@@ -54,12 +54,116 @@ export default function Categorias() {
     imagenUrl: "",
     iconoUrl: "",
   });
+  const [uploading, setUploading] = useState(false);
+  const [message, setMessage] = useState<{
+    type: "success" | "error";
+    text: string;
+  } | null>(null);
+
+  const getEndpoint = () => {
+    if (activeTab === "categorias") return "/categorias";
+    if (activeTab === "musculos") return "/musculos";
+    return "/equipos";
+  };
+
+  const getItemLabel = () => {
+    if (activeTab === "categorias") return "categoría";
+    if (activeTab === "musculos") return "músculo";
+    return "equipo";
+  };
+
+  const refreshActiveTab = () => {
+    if (activeTab === "categorias") fetchCategorias();
+    else if (activeTab === "musculos") fetchMusculos();
+    else fetchEquipos();
+  };
 
   const handleTabChange = (tab: TabType) => {
     setActiveTab(tab);
     navigate(`/categorias?tab=${tab}`, { replace: true });
     setEditing(null);
     setShowModal(false);
+    setMessage(null);
+  };
+
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setUploading(true);
+    setMessage(null);
+
+    const uploadData = new FormData();
+    uploadData.append("archivo", file);
+
+    try {
+      const response = await api.post(`${getEndpoint()}/leer-excel`, uploadData, {
+        headers: { "Content-Type": "multipart/form-data" },
+      });
+
+      if (response.data.guardados > 0) {
+        setMessage({
+          type: "success",
+          text: `Archivo procesado: ${response.data.guardados} ${getItemLabel()}(s) guardado(s)`,
+        });
+        refreshActiveTab();
+      } else if (response.data.errores > 0) {
+        const erroresTexto =
+          response.data.detallesErrores?.length > 0
+            ? response.data.detallesErrores.join("\n")
+            : `${response.data.errores} error(es)`;
+        setMessage({
+          type: "error",
+          text: `No se guardó nada. ${response.data.errores} error(es):\n${erroresTexto}`,
+        });
+      } else {
+        setMessage({
+          type: "error",
+          text: "No se procesó ninguna fila del archivo",
+        });
+      }
+    } catch (error: any) {
+      const data = error.response?.data;
+      const erroresTexto =
+        data?.detallesErrores?.length > 0
+          ? `\n${data.detallesErrores.join("\n")}`
+          : "";
+      setMessage({
+        type: "error",
+        text:
+          (data?.message || "Error al procesar el archivo") + erroresTexto,
+      });
+    } finally {
+      setUploading(false);
+      e.target.value = "";
+    }
+  };
+
+  const handleDeleteAll = async () => {
+    const label = getItemLabel();
+    if (
+      !confirm(
+        `¿Estás seguro de eliminar TODOS los ${label}s? Esta acción no se puede deshacer.`
+      )
+    ) {
+      return;
+    }
+
+    try {
+      const response = await api.delete(`${getEndpoint()}/todos`);
+      setMessage({
+        type: "success",
+        text:
+          response.data.message ||
+          `Todos los ${label}s fueron eliminados (${response.data.eliminados || 0})`,
+      });
+      refreshActiveTab();
+    } catch (error: any) {
+      setMessage({
+        type: "error",
+        text: error.response?.data?.message || "Error al eliminar todos",
+      });
+    }
   };
 
   const fetchCategorias = async () => {
@@ -114,12 +218,7 @@ export default function Categorias() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      const endpoint =
-        activeTab === "categorias"
-          ? "/categorias"
-          : activeTab === "musculos"
-          ? "/musculos"
-          : "/equipos";
+      const endpoint = getEndpoint();
       const idField =
         activeTab === "categorias"
           ? "idCategoria"
@@ -141,16 +240,19 @@ export default function Categorias() {
         imagenUrl: "",
         iconoUrl: "",
       });
-
-      if (activeTab === "categorias") {
-        fetchCategorias();
-      } else if (activeTab === "musculos") {
-        fetchMusculos();
-      } else if (activeTab === "equipos") {
-        fetchEquipos();
-      }
+      setMessage({
+        type: "success",
+        text: editing
+          ? `${getItemLabel()} actualizado(a) exitosamente`
+          : `${getItemLabel()} creado(a) exitosamente`,
+      });
+      refreshActiveTab();
     } catch (error: any) {
-      alert(error.response?.data?.message || `Error al guardar ${activeTab}`);
+      setMessage({
+        type: "error",
+        text:
+          error.response?.data?.message || `Error al guardar ${activeTab}`,
+      });
     }
   };
 
@@ -166,32 +268,20 @@ export default function Categorias() {
   };
 
   const handleDelete = async (id: string) => {
-    const itemName =
-      activeTab === "categorias"
-        ? "categoría"
-        : activeTab === "musculos"
-        ? "músculo"
-        : "equipo";
-    if (!confirm(`¿Estás seguro de eliminar este ${itemName}?`)) return;
+    if (!confirm(`¿Estás seguro de eliminar este ${getItemLabel()}?`)) return;
 
     try {
-      const endpoint =
-        activeTab === "categorias"
-          ? "/categorias"
-          : activeTab === "musculos"
-          ? "/musculos"
-          : "/equipos";
-      await api.delete(`${endpoint}/${id}`);
-
-      if (activeTab === "categorias") {
-        fetchCategorias();
-      } else if (activeTab === "musculos") {
-        fetchMusculos();
-      } else if (activeTab === "equipos") {
-        fetchEquipos();
-      }
+      await api.delete(`${getEndpoint()}/${id}`);
+      setMessage({
+        type: "success",
+        text: `${getItemLabel()} eliminado(a) exitosamente`,
+      });
+      refreshActiveTab();
     } catch (error: any) {
-      alert(error.response?.data?.message || "Error al eliminar");
+      setMessage({
+        type: "error",
+        text: error.response?.data?.message || "Error al eliminar",
+      });
     }
   };
 
@@ -296,6 +386,51 @@ export default function Categorias() {
           >
             {getNewButtonLabel()}
           </button>
+        </div>
+
+        {message && (
+          <div
+            className={`mb-4 p-4 rounded-lg whitespace-pre-line ${
+              message.type === "success"
+                ? "bg-green-50 text-green-800 border border-green-200"
+                : "bg-red-50 text-red-800 border border-red-200"
+            }`}
+          >
+            {message.text}
+          </div>
+        )}
+
+        <div className="bg-white shadow rounded-lg p-6 mb-6">
+          <h3 className="text-lg font-semibold mb-4">Carga masiva</h3>
+          <div className="flex flex-wrap items-center gap-4">
+            <label className="cursor-pointer">
+              <span className="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
+                {uploading ? "Cargando..." : "Cargar Excel"}
+              </span>
+              <input
+                type="file"
+                accept=".xlsx,.xls"
+                onChange={handleFileUpload}
+                disabled={uploading}
+                className="hidden"
+              />
+            </label>
+            <button
+              type="button"
+              onClick={handleDeleteAll}
+              className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700"
+            >
+              Eliminar Todos
+            </button>
+            <p className="text-sm text-gray-500">
+              {activeTab === "categorias" &&
+                "Columnas: nombre (req), descripcion, imagenUrl"}
+              {activeTab === "musculos" &&
+                "Columnas: nombre (req), descripcion, iconoUrl"}
+              {activeTab === "equipos" &&
+                "Columnas: nombre (req), descripcion, iconoUrl"}
+            </p>
+          </div>
         </div>
 
         {loading ? (

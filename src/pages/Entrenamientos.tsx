@@ -201,6 +201,16 @@ export default function Entrenamientos() {
     setQuitarVideo(false);
   };
 
+  const abrirNuevo = () => {
+    setEditing(null);
+    setFormData(formularioVacio());
+    setImagenArchivo(null);
+    setVideoArchivo(null);
+    setQuitarImagen(false);
+    setQuitarVideo(false);
+    setShowEditModal(true);
+  };
+
   const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
@@ -298,7 +308,6 @@ export default function Entrenamientos() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!editing) return;
 
     setGuardando(true);
     try {
@@ -329,22 +338,31 @@ export default function Entrenamientos() {
       if (!formData.videoStorageUrl) {
         delete data.videoStorageUrl;
       }
-      if (quitarImagen && !imagenArchivo) {
-        data.imagenStorageUrl = null;
-        data.imagenUrl = "";
-      }
-      if (quitarVideo && !videoArchivo) {
-        data.videoStorageUrl = null;
+      if (editing) {
+        if (quitarImagen && !imagenArchivo) {
+          data.imagenStorageUrl = null;
+          data.imagenUrl = "";
+        }
+        if (quitarVideo && !videoArchivo) {
+          data.videoStorageUrl = null;
+        }
       }
 
-      await api.put(`/ejercicios/${editing.idEjercicio}`, data);
+      const esEdicion = Boolean(editing);
+      let idEjercicio = editing?.idEjercicio;
+      if (editing) {
+        await api.put(`/ejercicios/${editing.idEjercicio}`, data);
+      } else {
+        const creado = await api.post("/ejercicios", data);
+        idEjercicio = creado.data.idEjercicio;
+      }
 
-      if (imagenArchivo || videoArchivo) {
+      if (idEjercicio && (imagenArchivo || videoArchivo)) {
         const archivos = new FormData();
         if (imagenArchivo) archivos.append("imagen", imagenArchivo);
         if (videoArchivo) archivos.append("video", videoArchivo);
         try {
-          await api.post(`/ejercicios/${editing.idEjercicio}/archivos`, archivos, {
+          await api.post(`/ejercicios/${idEjercicio}/archivos`, archivos, {
             headers: { "Content-Type": "multipart/form-data" },
           });
         } catch (error: any) {
@@ -362,7 +380,9 @@ export default function Entrenamientos() {
       cerrarEdicion();
       setMessage({
         type: "success",
-        text: "Ejercicio actualizado exitosamente",
+        text: esEdicion
+          ? "Ejercicio actualizado exitosamente"
+          : "Ejercicio creado exitosamente",
       });
       fetchEjercicios();
     } catch (error: any) {
@@ -385,6 +405,13 @@ export default function Entrenamientos() {
               Gestiona la base de datos de ejercicios
             </p>
           </div>
+          <button
+            type="button"
+            onClick={abrirNuevo}
+            className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+          >
+            + Nuevo ejercicio
+          </button>
         </div>
 
         {message && (
@@ -976,7 +1003,9 @@ export default function Entrenamientos() {
             <div className="bg-white rounded-lg w-full max-w-2xl max-h-[90vh] flex flex-col">
               <form onSubmit={handleSubmit} className="flex flex-col flex-1 min-h-0">
                 <div className="overflow-y-auto flex-1 p-4 sm:p-6">
-                  <h2 className="text-xl sm:text-2xl font-bold mb-4">Editar Ejercicio</h2>
+                  <h2 className="text-xl sm:text-2xl font-bold mb-4">
+                    {editing ? "Editar Ejercicio" : "Nuevo Ejercicio"}
+                  </h2>
                   <div className="space-y-4">
                     <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
