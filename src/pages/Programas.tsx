@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import ConfirmacionModal from "../components/ConfirmacionModal";
 import Layout from "../components/Layout";
 import api from "../services/api";
 
@@ -62,6 +63,7 @@ export default function Programas() {
   const [selectedPrograma, setSelectedPrograma] = useState<Programa | null>(
     null
   );
+  const [idAEliminar, setIdAEliminar] = useState<string | null>(null);
 
   const fetchProgramas = async () => {
     setLoading(true);
@@ -123,14 +125,19 @@ export default function Programas() {
     setShowModal(true);
   };
 
-  const handleDelete = async (id: string) => {
-    if (!confirm("¿Estás seguro de eliminar este programa?")) return;
+  const confirmarEliminarUno = async () => {
+    if (!idAEliminar) return;
+    const id = idAEliminar;
+    const scrollY = window.scrollY;
+    (document.activeElement as HTMLElement | null)?.blur();
+    setIdAEliminar(null);
     try {
       await api.delete(`/programas/${id}`);
-      fetchProgramas();
+      setProgramas((prev) => prev.filter((p) => p.idPrograma !== id));
       if (selectedPrograma?.idPrograma === id) {
         setSelectedPrograma(null);
       }
+      requestAnimationFrame(() => window.scrollTo(0, scrollY));
     } catch (error: any) {
       alert(error.response?.data?.message || "Error al eliminar el programa");
     }
@@ -275,7 +282,7 @@ export default function Programas() {
                     Editar
                   </button>
                   <button
-                    onClick={() => handleDelete(programa.idPrograma)}
+                    onClick={() => setIdAEliminar(programa.idPrograma)}
                     className="flex-1 px-3 py-2 bg-red-600 text-white rounded hover:bg-red-700"
                   >
                     Eliminar
@@ -627,6 +634,15 @@ export default function Programas() {
             </div>
           </div>
         )}
+
+        <ConfirmacionModal
+          abierto={Boolean(idAEliminar)}
+          titulo="Confirmar eliminación"
+          mensaje="¿Estás seguro de eliminar este programa? Esta acción no se puede deshacer."
+          textoConfirmar="Eliminar"
+          onCancelar={() => setIdAEliminar(null)}
+          onConfirmar={confirmarEliminarUno}
+        />
       </div>
     </Layout>
   );

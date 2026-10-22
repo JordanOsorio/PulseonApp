@@ -1,8 +1,14 @@
 import { useEffect, useState } from "react";
+import ConfirmacionModal from "../components/ConfirmacionModal";
+import DiagnosticoExcelModal, {
+  type ResultadoExcel,
+} from "../components/DiagnosticoExcelModal";
 import Layout from "../components/Layout";
+import MensajeToast from "../components/MensajeToast";
 import SelectorArchivo from "../components/SelectorArchivo";
 import api from "../services/api";
 import { urlMedia } from "../services/media";
+import { descargarPlantillaEjercicios } from "../services/plantillasExcel";
 
 const formularioVacio = () => ({
   nombre: "",
@@ -86,6 +92,7 @@ export default function Entrenamientos() {
   const [showDetailsModal, setShowDetailsModal] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
   const [showDeleteAllModal, setShowDeleteAllModal] = useState(false);
+  const [idAEliminar, setIdAEliminar] = useState<string | null>(null);
   const [editing, setEditing] = useState<Ejercicio | null>(null);
   const [formData, setFormData] = useState(formularioVacio());
   const [imagenArchivo, setImagenArchivo] = useState<File | null>(null);
@@ -95,9 +102,13 @@ export default function Entrenamientos() {
   const [guardando, setGuardando] = useState(false);
   const [imagenPreviewLocal, setImagenPreviewLocal] = useState("");
   const [videoPreviewLocal, setVideoPreviewLocal] = useState("");
+  const [showExcelModal, setShowExcelModal] = useState(false);
+  const [resultadoExcel, setResultadoExcel] = useState<ResultadoExcel | null>(
+    null
+  );
 
-  const fetchEjercicios = async () => {
-    setLoading(true);
+  const fetchEjercicios = async (opciones?: { silencioso?: boolean }) => {
+    if (!opciones?.silencioso) setLoading(true);
     try {
       const offset = (currentPage - 1) * itemsPerPage;
       const params: any = {
@@ -116,7 +127,7 @@ export default function Entrenamientos() {
         text: error.response?.data?.message || "Error al cargar ejercicios",
       });
     } finally {
-      setLoading(false);
+      if (!opciones?.silencioso) setLoading(false);
     }
   };
 
@@ -159,15 +170,24 @@ export default function Entrenamientos() {
     setCurrentPage(1);
   }, [searchTerm]);
 
-  // Prevenir scroll del body cuando el modal está abierto
+  // Bloquear scroll solo en modales grandes (no en confirmación de eliminar)
   useEffect(() => {
-    if (showDetailsModal || showEditModal || showDeleteAllModal) {
-      document.body.style.overflow = "hidden";
-    } else {
-      document.body.style.overflow = "unset";
-    }
+    const abierto = showDetailsModal || showEditModal || showDeleteAllModal;
+    if (!abierto) return;
+
+    const scrollY = window.scrollY;
+    document.body.style.position = "fixed";
+    document.body.style.top = `-${scrollY}px`;
+    document.body.style.left = "0";
+    document.body.style.right = "0";
+    document.body.style.overflow = "hidden";
     return () => {
-      document.body.style.overflow = "unset";
+      document.body.style.position = "";
+      document.body.style.top = "";
+      document.body.style.left = "";
+      document.body.style.right = "";
+      document.body.style.overflow = "";
+      window.scrollTo(0, scrollY);
     };
   }, [showDetailsModal, showEditModal, showDeleteAllModal]);
 
@@ -211,71 +231,90 @@ export default function Entrenamientos() {
     setShowEditModal(true);
   };
 
-  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-
+  const procesarExcel = async (file: File) => {
     setUploading(true);
-    setMessage(null);
-
+    setResultadoExcel(null);
     const formData = new FormData();
     formData.append("archivo", file);
 
     try {
       const response = await api.post("/ejercicios/leer-excel", formData, {
-        headers: {
-          "Content-Type": "multipart/form-data",
-        },
+        headers: { "Content-Type": "multipart/form-data" },
       });
-
-      if (response.data.guardados > 0) {
-        setMessage({
-          type: "success",
-          text: `✅ Archivo procesado: ${response.data.guardados} ejercicios guardados exitosamente`,
-        });
-        fetchEjercicios();
-      } else if (response.data.errores > 0) {
-        // Mostrar errores detallados
-        const erroresTexto =
-          response.data.detallesErrores &&
-          response.data.detallesErrores.length > 0
-            ? response.data.detallesErrores.join("\n")
-            : `${response.data.errores} error(es) encontrado(s)`;
-        setMessage({
-          type: "error",
-          text: `❌ No se guardaron ejercicios. ${response.data.errores} error(es):\n${erroresTexto}`,
-        });
-      } else {
-        setMessage({
-          type: "error",
-          text: "No se procesó ningún ejercicio del archivo",
-        });
+      const data = response.data;
+      setResultadoExcel({
+        guardados: data.guardados || 0,
+        errores: data.errores || 0,
+        total: data.total,
+        detallesErrores: data.detallesErrores,
+        itemsOk:
+          data.itemsOk ||
+          (data.ejercicios || []).map((e: any) => e.nombre).filter(Boolean),
+        message:
+          data.guardados > 0
+            ? `Se guardaron ${data.guardados} ejercicio(s).`
+            : data.message || "Revisá los errores y volvé a intentar.",
+      });
+      if (data.guardados > 0) {
+        fetchEjercicios({ silencioso: true });
       }
     } catch (error: any) {
-      setMessage({
-        type: "error",
-        text: error.response?.data?.message || "Error al procesar el archivo",
-      });
+      const data = error.response?.data;
+      if (data && (data.detallesErrores || data.errores != null)) {
+        setResultadoExcel({
+          guardados: data.guardados || 0,
+          errores: data.errores || data.detallesErrores?.length || 1,
+          total: data.total,
+          detallesErrores: data.detallesErrores || [data.message],
+          itemsOk: data.itemsOk,
+          message: data.message || "No se pudo procesar el archivo",
+        });
+      } else {
+        throw error;
+      }
     } finally {
       setUploading(false);
-      e.target.value = "";
     }
   };
 
-  const handleDelete = async (id: string) => {
-    if (!confirm("¿Estás seguro de eliminar este ejercicio?")) return;
-
+  const confirmarEliminarUno = async () => {
+    if (!idAEliminar) return;
+    const id = idAEliminar;
+    const scrollY = window.scrollY;
+    (document.activeElement as HTMLElement | null)?.blur();
+    setIdAEliminar(null);
     try {
       await api.delete(`/ejercicios/${id}`);
+      setEjercicios((prev) => prev.filter((e) => e.idEjercicio !== id));
+      setTotal((prev) => Math.max(0, prev - 1));
       setMessage({
         type: "success",
         text: "Ejercicio eliminado exitosamente",
       });
-      fetchEjercicios();
+      requestAnimationFrame(() => window.scrollTo(0, scrollY));
     } catch (error: any) {
       setMessage({
         type: "error",
         text: error.response?.data?.message || "Error al eliminar",
+      });
+    }
+  };
+
+  const confirmarEliminarTodos = async () => {
+    setShowDeleteAllModal(false);
+    try {
+      await api.delete("/ejercicios/todos");
+      setMessage({
+        type: "success",
+        text: "Todos los ejercicios han sido eliminados exitosamente",
+      });
+      setCurrentPage(1);
+      fetchEjercicios();
+    } catch (error: any) {
+      setMessage({
+        type: "error",
+        text:
+          error.response?.data?.message || "Error al eliminar los ejercicios",
       });
     }
   };
@@ -414,40 +453,44 @@ export default function Entrenamientos() {
           </button>
         </div>
 
-        {message && (
-          <div
-            className={`mb-4 p-4 rounded-lg ${
-              message.type === "success"
-                ? "bg-green-50 text-green-800 border border-green-200"
-                : "bg-red-50 text-red-800 border border-red-200"
-            }`}
-          >
-            <div className="font-semibold mb-2">
-              {message.text.split("\n")[0]}
-            </div>
-            {message.text.includes("\n") && (
-              <div className="mt-2 text-sm whitespace-pre-line">
-                {message.text.split("\n").slice(1).join("\n")}
-              </div>
-            )}
-          </div>
-        )}
+        <MensajeToast
+          mensaje={message}
+          onCerrar={() => setMessage(null)}
+        />
 
         <div className="bg-white shadow rounded-lg p-6 mb-6">
           <h2 className="text-xl font-semibold mb-4">Cargar Archivo Excel</h2>
-          <div className="flex items-center space-x-4">
-            <label className="cursor-pointer">
-              <span className="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
-                {uploading ? "Cargando..." : "Seleccionar Archivo Excel"}
-              </span>
-              <input
-                type="file"
-                accept=".xlsx,.xls"
-                onChange={handleFileUpload}
-                disabled={uploading}
-                className="hidden"
-              />
-            </label>
+          <p className="mb-4 text-sm text-gray-600">
+            Descargá la plantilla, completá los ejercicios (hay un ejemplo y una hoja de instrucciones)
+            y después subí el archivo. No cambies los nombres de las columnas.
+          </p>
+          <div className="flex flex-wrap items-center gap-3">
+            <button
+              type="button"
+              onClick={() => {
+                try {
+                  descargarPlantillaEjercicios();
+                } catch {
+                  setMessage({
+                    type: "error",
+                    text: "No se pudo descargar la plantilla Excel",
+                  });
+                }
+              }}
+              className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700"
+            >
+              Descargar plantilla Excel
+            </button>
+            <button
+              type="button"
+              onClick={() => {
+                setResultadoExcel(null);
+                setShowExcelModal(true);
+              }}
+              className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+            >
+              Seleccionar Archivo Excel
+            </button>
             <button
               onClick={() => setShowDeleteAllModal(true)}
               className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700"
@@ -574,7 +617,7 @@ export default function Entrenamientos() {
                             </svg>
                           </button>
                           <button
-                            onClick={() => handleDelete(ejercicio.idEjercicio)}
+                            onClick={() => setIdAEliminar(ejercicio.idEjercicio)}
                             className="text-red-600 hover:text-red-800 focus:outline-none"
                             title="Eliminar"
                           >
@@ -936,59 +979,42 @@ export default function Entrenamientos() {
           </div>
         )}
 
-        {/* Modal de Confirmación Eliminar Todos */}
-        {showDeleteAllModal && (
-          <div 
-            className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4"
-            onClick={(e) => {
-              if (e.target === e.currentTarget) {
-                setShowDeleteAllModal(false);
-              }
-            }}
-          >
-            <div className="bg-white rounded-lg p-4 sm:p-6 w-full max-w-md">
-              <h2 className="text-2xl font-bold mb-4 text-red-600">
-                Confirmar Eliminación
-              </h2>
-              <p className="text-gray-700 mb-6">
-                ¿Estás seguro de eliminar <strong>TODOS</strong> los ejercicios?
-                Esta acción no se puede deshacer.
-              </p>
-              <div className="flex space-x-2">
-                <button
-                  onClick={() => setShowDeleteAllModal(false)}
-                  className="flex-1 px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50"
-                >
-                  Cancelar
-                </button>
-                <button
-                  onClick={async () => {
-                    setShowDeleteAllModal(false);
-                    try {
-                      await api.delete("/ejercicios/todos");
-                      setMessage({
-                        type: "success",
-                        text: "Todos los ejercicios han sido eliminados exitosamente",
-                      });
-                      setCurrentPage(1);
-                      fetchEjercicios();
-                    } catch (error: any) {
-                      setMessage({
-                        type: "error",
-                        text:
-                          error.response?.data?.message ||
-                          "Error al eliminar los ejercicios",
-                      });
-                    }
-                  }}
-                  className="flex-1 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700"
-                >
-                  Eliminar Todos
-                </button>
-              </div>
-            </div>
-          </div>
-        )}
+        <DiagnosticoExcelModal
+          abierto={showExcelModal}
+          titulo="Cargar ejercicios desde Excel"
+          entidadPlural="Ejercicios"
+          tipo="ejercicios"
+          cargando={uploading}
+          resultado={resultadoExcel}
+          onCerrar={() => {
+            setShowExcelModal(false);
+            setResultadoExcel(null);
+          }}
+          onProcesar={procesarExcel}
+        />
+
+        <ConfirmacionModal
+          abierto={showDeleteAllModal}
+          titulo="Confirmar eliminación"
+          mensaje={
+            <>
+              ¿Estás seguro de eliminar <strong>TODOS</strong> los ejercicios?
+              Esta acción no se puede deshacer.
+            </>
+          }
+          textoConfirmar="Eliminar Todos"
+          onCancelar={() => setShowDeleteAllModal(false)}
+          onConfirmar={confirmarEliminarTodos}
+        />
+
+        <ConfirmacionModal
+          abierto={Boolean(idAEliminar)}
+          titulo="Confirmar eliminación"
+          mensaje="¿Estás seguro de eliminar este ejercicio? Esta acción no se puede deshacer."
+          textoConfirmar="Eliminar"
+          onCancelar={() => setIdAEliminar(null)}
+          onConfirmar={confirmarEliminarUno}
+        />
 
         {/* Modal de Edición */}
         {showEditModal && (

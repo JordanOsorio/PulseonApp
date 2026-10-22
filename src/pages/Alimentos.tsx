@@ -1,8 +1,14 @@
 import { useEffect, useState } from "react";
+import ConfirmacionModal from "../components/ConfirmacionModal";
+import DiagnosticoExcelModal, {
+  type ResultadoExcel,
+} from "../components/DiagnosticoExcelModal";
 import Layout from "../components/Layout";
+import MensajeToast from "../components/MensajeToast";
 import SelectorArchivo from "../components/SelectorArchivo";
 import api from "../services/api";
 import { urlMedia } from "../services/media";
+import { descargarPlantillaAlimentos } from "../services/plantillasExcel";
 
 type NumField = number | "";
 
@@ -95,6 +101,7 @@ export default function Alimentos() {
   const [showDetailsModal, setShowDetailsModal] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
   const [showDeleteAllModal, setShowDeleteAllModal] = useState(false);
+  const [idAEliminar, setIdAEliminar] = useState<string | null>(null);
   const [editing, setEditing] = useState<Alimento | null>(null);
   const [formData, setFormData] = useState<FormDataAlimento>(formularioVacio());
   const [imagenArchivo, setImagenArchivo] = useState<File | null>(null);
@@ -102,9 +109,13 @@ export default function Alimentos() {
   const [imagenPreviewLocal, setImagenPreviewLocal] = useState("");
   const [guardando, setGuardando] = useState(false);
   const [mostrarPorcionExtras, setMostrarPorcionExtras] = useState(false);
+  const [showExcelModal, setShowExcelModal] = useState(false);
+  const [resultadoExcel, setResultadoExcel] = useState<ResultadoExcel | null>(
+    null
+  );
 
-  const fetchAlimentos = async () => {
-    setLoading(true);
+  const fetchAlimentos = async (opciones?: { silencioso?: boolean }) => {
+    if (!opciones?.silencioso) setLoading(true);
     try {
       const params: any = { limit: 100 };
       if (searchTerm) {
@@ -119,7 +130,7 @@ export default function Alimentos() {
         text: error.response?.data?.message || "Error al cargar alimentos",
       });
     } finally {
-      setLoading(false);
+      if (!opciones?.silencioso) setLoading(false);
     }
   };
 
@@ -128,13 +139,22 @@ export default function Alimentos() {
   }, [searchTerm]);
 
   useEffect(() => {
-    if (showDetailsModal || showEditModal || showDeleteAllModal) {
-      document.body.style.overflow = "hidden";
-    } else {
-      document.body.style.overflow = "unset";
-    }
+    const abierto = showDetailsModal || showEditModal || showDeleteAllModal;
+    if (!abierto) return;
+
+    const scrollY = window.scrollY;
+    document.body.style.position = "fixed";
+    document.body.style.top = `-${scrollY}px`;
+    document.body.style.left = "0";
+    document.body.style.right = "0";
+    document.body.style.overflow = "hidden";
     return () => {
-      document.body.style.overflow = "unset";
+      document.body.style.position = "";
+      document.body.style.top = "";
+      document.body.style.left = "";
+      document.body.style.right = "";
+      document.body.style.overflow = "";
+      window.scrollTo(0, scrollY);
     };
   }, [showDetailsModal, showEditModal, showDeleteAllModal]);
 
@@ -316,16 +336,21 @@ export default function Alimentos() {
     }
   };
 
-  const handleDelete = async (id: string) => {
-    if (!confirm("¿Estás seguro de eliminar este alimento?")) return;
-
+  const confirmarEliminarUno = async () => {
+    if (!idAEliminar) return;
+    const id = idAEliminar;
+    const scrollY = window.scrollY;
+    (document.activeElement as HTMLElement | null)?.blur();
+    setIdAEliminar(null);
     try {
       await api.delete(`/alimentos/${id}`);
+      setAlimentos((prev) => prev.filter((a) => a.idAlimento !== id));
+      setTotal((prev) => Math.max(0, prev - 1));
       setMessage({
         type: "success",
         text: "Alimento eliminado exitosamente",
       });
-      fetchAlimentos();
+      requestAnimationFrame(() => window.scrollTo(0, scrollY));
     } catch (error: any) {
       setMessage({
         type: "error",
@@ -334,36 +359,67 @@ export default function Alimentos() {
     }
   };
 
-  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-
-    setUploading(true);
-    setMessage(null);
-
-    const formDataUpload = new FormData();
-    formDataUpload.append("archivo", file);
-
+  const confirmarEliminarTodos = async () => {
+    setShowDeleteAllModal(false);
     try {
-      const response = await api.post("/alimentos/leer-excel", formDataUpload, {
-        headers: {
-          "Content-Type": "multipart/form-data",
-        },
-      });
-
+      await api.delete("/alimentos/todos");
       setMessage({
         type: "success",
-        text: `Archivo procesado: ${response.data.guardados} alimentos guardados, ${response.data.errores} errores`,
+        text: "Todos los alimentos han sido eliminados exitosamente",
       });
       fetchAlimentos();
     } catch (error: any) {
       setMessage({
         type: "error",
-        text: error.response?.data?.message || "Error al procesar el archivo",
+        text:
+          error.response?.data?.message || "Error al eliminar los alimentos",
       });
+    }
+  };
+
+  const procesarExcel = async (file: File) => {
+    setUploading(true);
+    setResultadoExcel(null);
+    const formDataUpload = new FormData();
+    formDataUpload.append("archivo", file);
+
+    try {
+      const response = await api.post("/alimentos/leer-excel", formDataUpload, {
+        headers: { "Content-Type": "multipart/form-data" },
+      });
+      const data = response.data;
+      setResultadoExcel({
+        guardados: data.guardados || 0,
+        errores: data.errores || 0,
+        total: data.total,
+        detallesErrores: data.detallesErrores,
+        itemsOk:
+          data.itemsOk ||
+          (data.alimentos || []).map((a: any) => a.nombre).filter(Boolean),
+        message:
+          data.guardados > 0
+            ? `Se guardaron ${data.guardados} alimento(s).`
+            : data.message || "Revisá los errores y volvé a intentar.",
+      });
+      if (data.guardados > 0) {
+        fetchAlimentos({ silencioso: true });
+      }
+    } catch (error: any) {
+      const data = error.response?.data;
+      if (data && (data.detallesErrores || data.errores != null)) {
+        setResultadoExcel({
+          guardados: data.guardados || 0,
+          errores: data.errores || data.detallesErrores?.length || 1,
+          total: data.total,
+          detallesErrores: data.detallesErrores || [data.message],
+          itemsOk: data.itemsOk,
+          message: data.message || "No se pudo procesar el archivo",
+        });
+      } else {
+        throw error;
+      }
     } finally {
       setUploading(false);
-      e.target.value = "";
     }
   };
 
@@ -411,33 +467,44 @@ export default function Alimentos() {
           </button>
         </div>
 
-        {message && (
-          <div
-            className={`mb-4 p-4 rounded-lg ${
-              message.type === "success"
-                ? "bg-green-50 text-green-800"
-                : "bg-red-50 text-red-800"
-            }`}
-          >
-            {message.text}
-          </div>
-        )}
+        <MensajeToast
+          mensaje={message}
+          onCerrar={() => setMessage(null)}
+        />
 
         <div className="bg-white shadow rounded-lg p-6 mb-6">
           <h2 className="text-xl font-semibold mb-4">Cargar Archivo Excel</h2>
-          <div className="flex items-center space-x-4">
-            <label className="cursor-pointer">
-              <span className="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
-                {uploading ? "Cargando..." : "Seleccionar Archivo Excel"}
-              </span>
-              <input
-                type="file"
-                accept=".xlsx,.xls"
-                onChange={handleFileUpload}
-                disabled={uploading}
-                className="hidden"
-              />
-            </label>
+          <p className="mb-4 text-sm text-gray-600">
+            Descargá la plantilla, completá los alimentos (hay un ejemplo y una hoja de
+            instrucciones) y después subí el archivo. No cambies los nombres de las columnas.
+          </p>
+          <div className="flex flex-wrap items-center gap-3">
+            <button
+              type="button"
+              onClick={() => {
+                try {
+                  descargarPlantillaAlimentos();
+                } catch {
+                  setMessage({
+                    type: "error",
+                    text: "No se pudo descargar la plantilla Excel",
+                  });
+                }
+              }}
+              className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700"
+            >
+              Descargar plantilla Excel
+            </button>
+            <button
+              type="button"
+              onClick={() => {
+                setResultadoExcel(null);
+                setShowExcelModal(true);
+              }}
+              className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+            >
+              Seleccionar Archivo Excel
+            </button>
             <button
               onClick={() => setShowDeleteAllModal(true)}
               className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700"
@@ -574,7 +641,7 @@ export default function Alimentos() {
                             </svg>
                           </button>
                           <button
-                            onClick={() => handleDelete(alimento.idAlimento)}
+                            onClick={() => setIdAEliminar(alimento.idAlimento)}
                             className="text-red-600 hover:text-red-800 focus:outline-none"
                             title="Eliminar"
                           >
@@ -938,58 +1005,42 @@ export default function Alimentos() {
           </div>
         )}
 
-        {/* Modal Confirmar Eliminar Todos */}
-        {showDeleteAllModal && (
-          <div
-            className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4"
-            onClick={(e) => {
-              if (e.target === e.currentTarget) {
-                setShowDeleteAllModal(false);
-              }
-            }}
-          >
-            <div className="bg-white rounded-lg p-4 sm:p-6 w-full max-w-md">
-              <h2 className="text-2xl font-bold mb-4 text-red-600">
-                Confirmar Eliminación
-              </h2>
-              <p className="text-gray-700 mb-6">
-                ¿Estás seguro de eliminar <strong>TODOS</strong> los alimentos?
-                Esta acción no se puede deshacer.
-              </p>
-              <div className="flex space-x-2">
-                <button
-                  onClick={() => setShowDeleteAllModal(false)}
-                  className="flex-1 px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50"
-                >
-                  Cancelar
-                </button>
-                <button
-                  onClick={async () => {
-                    setShowDeleteAllModal(false);
-                    try {
-                      await api.delete("/alimentos/todos");
-                      setMessage({
-                        type: "success",
-                        text: "Todos los alimentos han sido eliminados exitosamente",
-                      });
-                      fetchAlimentos();
-                    } catch (error: any) {
-                      setMessage({
-                        type: "error",
-                        text:
-                          error.response?.data?.message ||
-                          "Error al eliminar los alimentos",
-                      });
-                    }
-                  }}
-                  className="flex-1 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700"
-                >
-                  Eliminar Todos
-                </button>
-              </div>
-            </div>
-          </div>
-        )}
+        <DiagnosticoExcelModal
+          abierto={showExcelModal}
+          titulo="Cargar alimentos desde Excel"
+          entidadPlural="Alimentos"
+          tipo="alimentos"
+          cargando={uploading}
+          resultado={resultadoExcel}
+          onCerrar={() => {
+            setShowExcelModal(false);
+            setResultadoExcel(null);
+          }}
+          onProcesar={procesarExcel}
+        />
+
+        <ConfirmacionModal
+          abierto={showDeleteAllModal}
+          titulo="Confirmar eliminación"
+          mensaje={
+            <>
+              ¿Estás seguro de eliminar <strong>TODOS</strong> los alimentos?
+              Esta acción no se puede deshacer.
+            </>
+          }
+          textoConfirmar="Eliminar Todos"
+          onCancelar={() => setShowDeleteAllModal(false)}
+          onConfirmar={confirmarEliminarTodos}
+        />
+
+        <ConfirmacionModal
+          abierto={Boolean(idAEliminar)}
+          titulo="Confirmar eliminación"
+          mensaje="¿Estás seguro de eliminar este alimento? Esta acción no se puede deshacer."
+          textoConfirmar="Eliminar"
+          onCancelar={() => setIdAEliminar(null)}
+          onConfirmar={confirmarEliminarUno}
+        />
 
         {/* Modal Crear / Editar */}
         {showEditModal && (
