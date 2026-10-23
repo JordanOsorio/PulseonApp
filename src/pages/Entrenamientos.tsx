@@ -461,7 +461,7 @@ export default function Entrenamientos() {
         <div className="bg-white shadow rounded-lg p-6 mb-6">
           <h2 className="text-xl font-semibold mb-4">Cargar Archivo Excel</h2>
           <p className="mb-4 text-sm text-gray-600">
-            Descargá la plantilla, completá los ejercicios (hay un ejemplo y una hoja de instrucciones)
+            Descargá la plantilla, completá los ejercicios (ejemplo + hojas Instrucciones y Opciones con valores permitidos)
             y después subí el archivo. No cambies los nombres de las columnas.
           </p>
           <div className="flex flex-wrap items-center gap-3">
@@ -469,7 +469,11 @@ export default function Entrenamientos() {
               type="button"
               onClick={() => {
                 try {
-                  descargarPlantillaEjercicios();
+                  descargarPlantillaEjercicios({
+                    categorias: categorias.map((c) => c.nombre),
+                    musculos: musculos.map((m) => m.nombre),
+                    equipos: equipos.map((e) => e.nombre),
+                  });
                 } catch {
                   setMessage({
                     type: "error",

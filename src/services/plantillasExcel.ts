@@ -15,6 +15,141 @@ function descargarWorkbook(workbook: XLSX.WorkBook, nombreArchivo: string) {
   window.URL.revokeObjectURL(url);
 }
 
+const NIVELES_DIFICULTAD = [
+  "preparatorio",
+  "intermedio",
+  "avanzado",
+  "sin_nivel",
+] as const;
+
+const TIPOS_EJERCICIO = [
+  "dinamicos",
+  "basicos",
+  "complementarios",
+  "sin_tipo",
+] as const;
+
+const TIPOS_MEDICION = ["repeticion", "tiempo", "peso"] as const;
+
+export type ListasPlantillaEjercicios = {
+  categorias?: string[];
+  musculos?: string[];
+  equipos?: string[];
+};
+
+function hojaOpcionesEjercicios(listas?: ListasPlantillaEjercicios) {
+  const categorias = [...(listas?.categorias || [])].sort((a, b) =>
+    a.localeCompare(b, "es")
+  );
+  const musculos = [...(listas?.musculos || [])].sort((a, b) =>
+    a.localeCompare(b, "es")
+  );
+  const equipos = [...(listas?.equipos || [])].sort((a, b) =>
+    a.localeCompare(b, "es")
+  );
+
+  const filas: (string | number)[][] = [
+    ["OPCIONES FIJAS — copiá el valor exacto (minúsculas) en la hoja Ejercicios"],
+    [],
+    ["Campo", "Valor permitido", "Cómo usarlo"],
+    [
+      "nivelDificultad",
+      "preparatorio",
+      "Uno solo. Si dejás vacío = sin_nivel",
+    ],
+    ["nivelDificultad", "intermedio", ""],
+    ["nivelDificultad", "avanzado", ""],
+    ["nivelDificultad", "sin_nivel", ""],
+    [],
+    ["tipoEjercicio", "dinamicos", "Uno solo. Si dejás vacío = sin_tipo"],
+    ["tipoEjercicio", "basicos", ""],
+    ["tipoEjercicio", "complementarios", ""],
+    ["tipoEjercicio", "sin_tipo", ""],
+    [],
+    [
+      "tiposMedicion",
+      "repeticion",
+      "Uno o varios separados por coma. Ej: repeticion,peso",
+    ],
+    ["tiposMedicion", "tiempo", ""],
+    ["tiposMedicion", "peso", ""],
+    [],
+    [
+      "Resumen rápido",
+      `nivelDificultad → ${NIVELES_DIFICULTAD.join(" | ")}`,
+      "",
+    ],
+    ["", `tipoEjercicio → ${TIPOS_EJERCICIO.join(" | ")}`, ""],
+    [
+      "",
+      `tiposMedicion → ${TIPOS_MEDICION.join(" | ")} (combinables: repeticion,peso)`,
+      "",
+    ],
+    [],
+    [
+      "LISTAS ACTUALES EN LA BASE (podés usar estos nombres o crear nuevos)",
+    ],
+    [],
+    ["Categorias existentes", "Musculos existentes", "Implementos / equipos existentes"],
+  ];
+
+  const max = Math.max(categorias.length, musculos.length, equipos.length, 1);
+  for (let i = 0; i < max; i++) {
+    filas.push([
+      categorias[i] || "",
+      musculos[i] || "",
+      equipos[i] || "",
+    ]);
+  }
+
+  if (categorias.length === 0 && musculos.length === 0 && equipos.length === 0) {
+    filas.push([
+      "(todavía no hay datos — se crean al subir el Excel)",
+      "",
+      "",
+    ]);
+  }
+
+  filas.push([]);
+  filas.push([
+    "Nota Musculo",
+    "Varios músculos: separalos con +",
+    "Ej: Pecho + Triceps + Hombros",
+  ]);
+  filas.push([
+    "Nota Implementos",
+    "Varios implementos: separalos con coma o +",
+    "Ej: Barra olímpica, Banco",
+  ]);
+
+  const hoja = XLSX.utils.aoa_to_sheet(filas);
+  hoja["!cols"] = [{ wch: 28 }, { wch: 55 }, { wch: 55 }];
+  return hoja;
+}
+
+/** Agrega listas desplegables en Excel (si el lector las respeta). */
+function aplicarValidacionesEjercicios(hoja: XLSX.WorkSheet) {
+  // Columnas: A Nombre … H nivelDificultad, I tipoEjercicio, J tiposMedicion
+  // SheetJS community: se guarda como extensión; Excel/Google Sheets suelen respetarlo.
+  const dataValidations = [
+    {
+      sqref: "H2:H500",
+      type: "list",
+      allowBlank: true,
+      showDropDown: false,
+      formula1: `"${NIVELES_DIFICULTAD.join(",")}"`,
+    },
+    {
+      sqref: "I2:I500",
+      type: "list",
+      allowBlank: true,
+      showDropDown: false,
+      formula1: `"${TIPOS_EJERCICIO.join(",")}"`,
+    },
+  ];
+  (hoja as any)["!dataValidation"] = dataValidations;
+}
+
 export function descargarPlantillaAlimentos() {
   const workbook = XLSX.utils.book_new();
 
@@ -138,7 +273,7 @@ export function descargarPlantillaAlimentos() {
   descargarWorkbook(workbook, "plantilla-alimentos-pulseon.xlsx");
 }
 
-export function descargarPlantillaEjercicios() {
+export function descargarPlantillaEjercicios(listas?: ListasPlantillaEjercicios) {
   const workbook = XLSX.utils.book_new();
 
   const encabezados = [
@@ -189,12 +324,24 @@ export function descargarPlantillaEjercicios() {
     { wch: 14 },
     { wch: 10 },
   ];
+  aplicarValidacionesEjercicios(hojaDatos);
   XLSX.utils.book_append_sheet(workbook, hojaDatos, "Ejercicios");
+
+  XLSX.utils.book_append_sheet(
+    workbook,
+    hojaOpcionesEjercicios(listas),
+    "Opciones"
+  );
 
   const instrucciones = [
     ["Campo", "Obligatorio", "Cómo completarlo", "Ejemplos / valores"],
     ["Nombre", "Sí", "Nombre del ejercicio. No dejar vacío.", "Press de banca"],
-    ["Descripcion", "No", "Texto libre con detalle.", "Acostate en el banco..."],
+    [
+      "Descripcion",
+      "No",
+      "Texto libre. Junto con Nombre identifica duplicados.",
+      "Acostate en el banco...",
+    ],
     [
       "urlVideo",
       "No",
@@ -204,19 +351,19 @@ export function descargarPlantillaEjercicios() {
     [
       "Categoria",
       "No",
-      "Si no existe, se crea automáticamente.",
+      "Ver hoja Opciones (listas actuales). Si no existe, se crea.",
       "Pecho, Espalda, Piernas",
     ],
     [
       "Musculo",
       "No",
-      "Uno o varios separados por +.",
+      "Ver hoja Opciones. Varios separados por +.",
       "Pecho + Triceps + Hombros",
     ],
     [
       "Implementos",
       "No",
-      "Uno o varios separados por coma o +.",
+      "Ver hoja Opciones. Varios separados por coma o +.",
       "Barra olímpica, Banco",
     ],
     [
@@ -228,25 +375,31 @@ export function descargarPlantillaEjercicios() {
     [
       "nivelDificultad",
       "No",
-      "Vacío = sin_nivel",
-      "preparatorio | intermedio | avanzado | sin_nivel",
+      "SOLO estos valores (ver hoja Opciones). Vacío = sin_nivel",
+      NIVELES_DIFICULTAD.join(" | "),
     ],
     [
       "tipoEjercicio",
       "No",
-      "Vacío = sin_tipo",
-      "dinamicos | basicos | complementarios | sin_tipo",
+      "SOLO estos valores (ver hoja Opciones). Vacío = sin_tipo",
+      TIPOS_EJERCICIO.join(" | "),
     ],
     [
       "tiposMedicion",
       "No",
-      "Separados por coma.",
-      "repeticion | tiempo | peso → ej: repeticion,peso",
+      "SOLO estos, separados por coma (ver hoja Opciones).",
+      `${TIPOS_MEDICION.join(" | ")} → ej: repeticion,peso`,
     ],
     ["repeticiones", "No", "Número entero si usás repeticion.", "12"],
     ["tiempoSegundos", "No", "Segundos si usás tiempo.", "45"],
     ["pesoKg", "No", "Número si usás peso.", "60 o 40.5"],
     [],
+    [
+      "Importante",
+      "",
+      "Abrí la pestaña Opciones: ahí están TODOS los valores fijos exactos y las listas ya creadas en el sistema.",
+      "",
+    ],
     [
       "Consejo",
       "",
@@ -260,7 +413,7 @@ export function descargarPlantillaEjercicios() {
     { wch: 18 },
     { wch: 12 },
     { wch: 70 },
-    { wch: 50 },
+    { wch: 55 },
   ];
   XLSX.utils.book_append_sheet(workbook, hojaInstrucciones, "Instrucciones");
 
