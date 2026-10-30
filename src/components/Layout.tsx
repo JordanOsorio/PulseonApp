@@ -19,6 +19,7 @@ export default function Layout({ children }: LayoutProps) {
   const navItems = [
     { path: "/", label: "Dashboard", icon: "📊" },
     { path: "/alimentos", label: "Alimentos", icon: "🍎" },
+    { path: "/recetas", label: "Recetas", icon: "🍝" },
     { path: "/entrenamientos", label: "Entrenamientos", icon: "💪" },
     { path: "/categorias", label: "Categorías", icon: "📁" },
     { path: "/programas", label: "Programas", icon: "📋" },

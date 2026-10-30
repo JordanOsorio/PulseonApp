@@ -419,3 +419,81 @@ export function descargarPlantillaEjercicios(listas?: ListasPlantillaEjercicios)
 
   descargarWorkbook(workbook, "plantilla-ejercicios-pulseon.xlsx");
 }
+
+export function descargarPlantillaRecetas() {
+  const workbook = XLSX.utils.book_new();
+
+  const encabezados = [
+    "Nombre",
+    "Descripcion",
+    "duracionMinutos",
+    "porciones",
+    "Ingredientes",
+  ];
+  const ejemplo = [
+    "Tallarines con salsa",
+    "Clásico casero. Herví la pasta y mezclá con la salsa.",
+    "25",
+    "2",
+    "Tallarines|200|g|Harinas + Salsa de tomate|150|g|Salsas",
+  ];
+
+  const hoja = XLSX.utils.aoa_to_sheet([encabezados, ejemplo]);
+  hoja["!cols"] = [
+    { wch: 28 },
+    { wch: 50 },
+    { wch: 16 },
+    { wch: 12 },
+    { wch: 70 },
+  ];
+  XLSX.utils.book_append_sheet(workbook, hoja, "Recetas");
+
+  const opciones = [
+    ["OPCIONES Y FORMATO"],
+    [],
+    ["Campo", "Detalle"],
+    ["Nombre", "Obligatorio"],
+    ["Descripcion", "Opcional"],
+    ["duracionMinutos", "Opcional (minutos)"],
+    ["porciones", "Opcional (default 1)"],
+    [
+      "Ingredientes",
+      "nombre|cantidad|unidad|categoria — varios separados por + o ;",
+    ],
+    [
+      "Ejemplo",
+      "Tallarines|200|g|Harinas + Salsa de tomate|150|g|Salsas",
+    ],
+    [
+      "Nota",
+      "Si el alimento existe se reutiliza; si no, se crea (categoría opcional).",
+    ],
+  ];
+  const hojaOp = XLSX.utils.aoa_to_sheet(opciones);
+  hojaOp["!cols"] = [{ wch: 22 }, { wch: 80 }];
+  XLSX.utils.book_append_sheet(workbook, hojaOp, "Opciones");
+
+  const instrucciones = [
+    ["Campo", "Obligatorio", "Cómo completarlo"],
+    ["Nombre", "Sí", "Nombre de la comida/receta"],
+    ["Descripcion", "No", "Detalle de preparación"],
+    ["duracionMinutos", "No", "Minutos totales"],
+    ["porciones", "No", "Cuántas porciones rinde"],
+    [
+      "Ingredientes",
+      "Sí",
+      "nombre|cantidad|unidad|categoria separados por +",
+    ],
+    [],
+    [
+      "Consejo",
+      "",
+      "No cambies los nombres de columnas. Borrá o reemplazá la fila de ejemplo.",
+    ],
+  ];
+  const hojaIns = XLSX.utils.aoa_to_sheet(instrucciones);
+  hojaIns["!cols"] = [{ wch: 18 }, { wch: 12 }, { wch: 70 }];
+  XLSX.utils.book_append_sheet(workbook, hojaIns, "Instrucciones");
+
+  descargarWorkbook(workbook, "plantilla-recetas-pulseon.xlsx");
+}

@@ -7,6 +7,7 @@ import Dashboard from "./pages/Dashboard";
 import Entrenamientos from "./pages/Entrenamientos";
 import Login from "./pages/Login";
 import Programas from "./pages/Programas";
+import Recetas from "./pages/Recetas";
 
 function ProtectedRoute({ children }: { children: ReactNode }) {
   const { isAuthenticated } = useAuth();
@@ -54,6 +55,14 @@ function AppRoutes() {
         element={
           <ProtectedRoute>
             <Programas />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/recetas"
+        element={
+          <ProtectedRoute>
+            <Recetas />
           </ProtectedRoute>
         }
       />

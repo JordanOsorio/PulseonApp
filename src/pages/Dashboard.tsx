@@ -12,6 +12,14 @@ export default function Dashboard() {
       color: "bg-green-500",
     },
     {
+      title: "Recetas",
+      description:
+        "Comidas y preparaciones con ingredientes desde Alimentos",
+      icon: "🍝",
+      link: "/recetas",
+      color: "bg-amber-500",
+    },
+    {
       title: "Entrenamientos",
       description: "Crea y gestiona ejercicios y entrenamientos",
       icon: "💪",

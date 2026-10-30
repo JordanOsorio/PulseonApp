@@ -3,6 +3,7 @@ import * as XLSX from "xlsx";
 export type TipoPlantillaExcel =
   | "ejercicios"
   | "alimentos"
+  | "recetas"
   | "categorias"
   | "musculos"
   | "equipos";
@@ -124,6 +125,39 @@ const CONFIG: Record<TipoPlantillaExcel, ConfigPlantilla> = {
         !valorCelda(row, ["Categoria", "Categoría", "categoria", "categoría"])
       ) {
         errores.push(`Fila ${numeroFila}: falta Categoria`);
+      }
+      return errores;
+    },
+  },
+  recetas: {
+    obligatorias: [
+      ["Nombre", "nombre"],
+      ["Ingredientes", "ingredientes", "productos"],
+    ],
+    recomendadas: [
+      ["Descripcion", "Descripción", "descripcion"],
+      ["duracionMinutos", "duracion", "Duracion"],
+      ["porciones", "porcion"],
+    ],
+    obtenerNombre: (row) => valorCelda(row, ["Nombre", "nombre"]),
+    validarFila: (row, numeroFila) => {
+      const errores: string[] = [];
+      if (!valorCelda(row, ["Nombre", "nombre"])) {
+        errores.push(`Fila ${numeroFila}: falta Nombre`);
+      }
+      const ings = valorCelda(row, [
+        "Ingredientes",
+        "ingredientes",
+        "productos",
+      ]);
+      if (!ings) {
+        errores.push(
+          `Fila ${numeroFila}: falta Ingredientes (formato nombre|cantidad|unidad)`
+        );
+      } else if (!ings.includes("|")) {
+        errores.push(
+          `Fila ${numeroFila}: Ingredientes debe usar formato nombre|cantidad|unidad separados por +`
+        );
       }
       return errores;
     },
@@ -253,18 +287,18 @@ export async function analizarExcelPrevio(
     const erroresFila = config.validarFila(row, numeroFila);
     const nombre = config.obtenerNombre(row) || "(sin nombre)";
 
-    if (tipo === "ejercicios" || tipo === "alimentos") {
+    if (tipo === "ejercicios" || tipo === "alimentos" || tipo === "recetas") {
       const descripcion =
-        tipo === "ejercicios"
+        tipo === "ejercicios" || tipo === "recetas"
           ? valorCelda(row, ["Descripcion", "Descripción", "descripcion"])
           : "";
       const clave =
-        tipo === "ejercicios"
+        tipo === "ejercicios" || tipo === "recetas"
           ? `${nombre.trim().toLowerCase()}||${descripcion.trim().toLowerCase()}`
           : nombre.trim().toLowerCase();
       if (nombre && nombre !== "(sin nombre)" && vistosEnArchivo.has(clave)) {
         erroresFila.push(
-          tipo === "ejercicios"
+          tipo === "ejercicios" || tipo === "recetas"
             ? `Fila ${numeroFila}: duplicado en el archivo (mismo Nombre y Descripción que la fila ${vistosEnArchivo.get(clave)})`
             : `Fila ${numeroFila}: nombre duplicado en el archivo (igual que la fila ${vistosEnArchivo.get(clave)})`
         );
@@ -297,7 +331,8 @@ export async function analizarExcelPrevio(
   if (
     primerNombre.includes("ejemplo") ||
     primerNombre === "press de banca con barra" ||
-    primerNombre === "pollo pechuga cocida"
+    primerNombre === "pollo pechuga cocida" ||
+    primerNombre === "tallarines con salsa"
   ) {
     problemas.unshift(
       "La primera fila parece ser el ejemplo de la plantilla. Reemplazala o borrala antes de subir si no querés cargarla."
