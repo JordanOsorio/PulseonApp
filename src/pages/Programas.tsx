@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+﻿import { useEffect, useState } from "react";
 import ConfirmacionModal from "../components/ConfirmacionModal";
 import Layout from "../components/Layout";
 import api from "../services/api";
@@ -211,17 +211,17 @@ export default function Programas() {
 
   return (
     <Layout>
-      <div className="px-4 py-6 sm:px-0">
+      <div className="space-y-6">
         <div className="mb-6 flex justify-between items-center">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900">Programas</h1>
-            <p className="mt-2 text-gray-600">
+            <h1 className="panel-header">Programas</h1>
+            <p className="mt-2 text-muted">
               Gestiona los programas de entrenamiento
             </p>
           </div>
           <button
             onClick={abrirNuevo}
-            className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+            className="px-4 py-2 bg-brand text-brand-fg rounded-xl hover:opacity-90"
           >
             + Nuevo programa
           </button>
@@ -230,7 +230,7 @@ export default function Programas() {
         {loading ? (
           <div className="text-center py-8">Cargando...</div>
         ) : programas.length === 0 ? (
-          <div className="text-center py-8 text-gray-500">
+          <div className="text-center py-8 text-muted">
             No hay programas. Crea el primero con &quot;+ Nuevo programa&quot;.
           </div>
         ) : (
@@ -238,30 +238,30 @@ export default function Programas() {
             {programas.map((programa) => (
               <div
                 key={programa.idPrograma}
-                className="bg-white rounded-lg shadow-md p-6"
+                className="bg-surface rounded-xl shadow-panel dark:shadow-panel-dark p-6"
               >
                 {programa.imagenUrl && (
                   <img
                     src={programa.imagenUrl}
                     alt={programa.titulo}
-                    className="w-full h-48 object-cover rounded-lg mb-4 cursor-pointer"
+                    className="w-full h-48 object-cover rounded-xl mb-4 cursor-pointer"
                     onClick={() => fetchProgramaDetails(programa.idPrograma)}
                   />
                 )}
                 <h3
-                  className="text-xl font-semibold mb-2 cursor-pointer hover:text-blue-600"
+                  className="text-xl font-semibold mb-2 cursor-pointer hover:text-brand"
                   onClick={() => fetchProgramaDetails(programa.idPrograma)}
                 >
                   {programa.titulo}
                 </h3>
                 {programa.descripcion && (
-                  <p className="text-gray-600 text-sm mb-4 line-clamp-2">
+                  <p className="text-muted text-sm mb-4 line-clamp-2">
                     {programa.descripcion}
                   </p>
                 )}
-                <div className="flex justify-between items-center text-sm text-gray-500 mb-4">
+                <div className="flex justify-between items-center text-sm text-muted mb-4">
                   {programa.nivelDificultad && (
-                    <span className="px-2 py-1 bg-blue-100 text-blue-800 rounded">
+                    <span className="px-2 py-1 bg-blue-100 text-brand rounded">
                       {programa.nivelDificultad}
                     </span>
                   )}
@@ -270,20 +270,20 @@ export default function Programas() {
                   )}
                 </div>
                 {programa.categoria && (
-                  <div className="mb-4 text-sm text-gray-500">
+                  <div className="mb-4 text-sm text-muted">
                     {programa.categoria.nombre}
                   </div>
                 )}
                 <div className="flex space-x-2">
                   <button
                     onClick={() => handleEdit(programa)}
-                    className="flex-1 px-3 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+                    className="flex-1 px-3 py-2 bg-brand text-brand-fg rounded hover:opacity-90"
                   >
                     Editar
                   </button>
                   <button
                     onClick={() => setIdAEliminar(programa.idPrograma)}
-                    className="flex-1 px-3 py-2 bg-red-600 text-white rounded hover:bg-red-700"
+                    className="flex-1 px-3 py-2 bg-red-600 text-white rounded hover:opacity-90"
                   >
                     Eliminar
                   </button>
@@ -294,14 +294,14 @@ export default function Programas() {
         )}
 
         {showModal && (
-          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-            <div className="bg-white rounded-lg p-6 w-full max-w-2xl max-h-[90vh] overflow-y-auto">
+          <div className="fixed inset-0 bg-black/55 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+            <div className="bg-surface rounded-xl p-6 w-full max-w-2xl max-h-[90vh] overflow-y-auto">
               <h2 className="text-2xl font-bold mb-4">
                 {editing ? "Editar programa" : "Nuevo programa"}
               </h2>
               <form onSubmit={handleSubmit} className="space-y-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                  <label className="block text-sm font-medium text-ink mb-1">
                     Título *
                   </label>
                   <input
@@ -310,13 +310,13 @@ export default function Programas() {
                     onChange={(e) =>
                       setFormData({ ...formData, titulo: e.target.value })
                     }
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg"
+                    className="w-full px-3 py-2 border border-line rounded-xl"
                     required
                   />
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                  <label className="block text-sm font-medium text-ink mb-1">
                     Descripción
                   </label>
                   <textarea
@@ -324,13 +324,13 @@ export default function Programas() {
                     onChange={(e) =>
                       setFormData({ ...formData, descripcion: e.target.value })
                     }
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg"
+                    className="w-full px-3 py-2 border border-line rounded-xl"
                     rows={2}
                   />
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                  <label className="block text-sm font-medium text-ink mb-1">
                     Descripción completa
                   </label>
                   <textarea
@@ -341,14 +341,14 @@ export default function Programas() {
                         descripcionCompleta: e.target.value,
                       })
                     }
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg"
+                    className="w-full px-3 py-2 border border-line rounded-xl"
                     rows={4}
                   />
                 </div>
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                    <label className="block text-sm font-medium text-ink mb-1">
                       Duración (semanas) *
                     </label>
                     <input
@@ -362,12 +362,12 @@ export default function Programas() {
                           duracionSemanas: Number(e.target.value),
                         })
                       }
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg"
+                      className="w-full px-3 py-2 border border-line rounded-xl"
                       required
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                    <label className="block text-sm font-medium text-ink mb-1">
                       Frecuencia semanal *
                     </label>
                     <input
@@ -381,7 +381,7 @@ export default function Programas() {
                           frecuenciaSemanal: Number(e.target.value),
                         })
                       }
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg"
+                      className="w-full px-3 py-2 border border-line rounded-xl"
                       required
                     />
                   </div>
@@ -389,7 +389,7 @@ export default function Programas() {
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                    <label className="block text-sm font-medium text-ink mb-1">
                       Nivel de dificultad *
                     </label>
                     <select
@@ -400,7 +400,7 @@ export default function Programas() {
                           nivelDificultad: e.target.value,
                         })
                       }
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg"
+                      className="w-full px-3 py-2 border border-line rounded-xl"
                       required
                     >
                       {NIVELES.map((nivel) => (
@@ -411,7 +411,7 @@ export default function Programas() {
                     </select>
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                    <label className="block text-sm font-medium text-ink mb-1">
                       Categoría *
                     </label>
                     <select
@@ -422,7 +422,7 @@ export default function Programas() {
                           idCategoria: e.target.value,
                         })
                       }
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg"
+                      className="w-full px-3 py-2 border border-line rounded-xl"
                       required
                     >
                       <option value="">Seleccionar categoría</option>
@@ -436,20 +436,20 @@ export default function Programas() {
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                  <label className="block text-sm font-medium text-ink mb-2">
                     Tipo de ubicación *
                   </label>
                   <div className="flex flex-wrap gap-4">
                     {UBICACIONES.map((ubicacion) => (
                       <label
                         key={ubicacion}
-                        className="inline-flex items-center gap-2 text-sm text-gray-700"
+                        className="inline-flex items-center gap-2 text-sm text-ink"
                       >
                         <input
                           type="checkbox"
                           checked={formData.tipoUbicacion.includes(ubicacion)}
                           onChange={() => toggleUbicacion(ubicacion)}
-                          className="rounded border-gray-300"
+                          className="rounded border-line"
                         />
                         {ubicacion}
                       </label>
@@ -458,7 +458,7 @@ export default function Programas() {
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                  <label className="block text-sm font-medium text-ink mb-1">
                     URL de imagen
                   </label>
                   <input
@@ -467,12 +467,12 @@ export default function Programas() {
                     onChange={(e) =>
                       setFormData({ ...formData, imagenUrl: e.target.value })
                     }
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg"
+                    className="w-full px-3 py-2 border border-line rounded-xl"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                  <label className="block text-sm font-medium text-ink mb-1">
                     Beneficios
                   </label>
                   <textarea
@@ -483,7 +483,7 @@ export default function Programas() {
                         beneficiosTexto: e.target.value,
                       })
                     }
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg"
+                    className="w-full px-3 py-2 border border-line rounded-xl"
                     rows={3}
                     placeholder="Uno por línea o separados por comas"
                   />
@@ -497,13 +497,13 @@ export default function Programas() {
                       setEditing(null);
                       setFormData(formularioVacio());
                     }}
-                    className="flex-1 px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50"
+                    className="flex-1 px-4 py-2 border border-line rounded-xl hover:bg-canvas"
                   >
                     Cancelar
                   </button>
                   <button
                     type="submit"
-                    className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+                    className="flex-1 px-4 py-2 bg-brand text-brand-fg rounded-xl hover:opacity-90"
                   >
                     Guardar
                   </button>
@@ -514,13 +514,13 @@ export default function Programas() {
         )}
 
         {selectedPrograma && (
-          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-            <div className="bg-white rounded-lg p-6 w-full max-w-2xl max-h-[90vh] overflow-y-auto">
+          <div className="fixed inset-0 bg-black/55 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+            <div className="bg-surface rounded-xl p-6 w-full max-w-2xl max-h-[90vh] overflow-y-auto">
               <div className="flex justify-between items-start mb-4">
                 <h2 className="text-2xl font-bold">{selectedPrograma.titulo}</h2>
                 <button
                   onClick={() => setSelectedPrograma(null)}
-                  className="text-gray-500 hover:text-gray-700 text-2xl leading-none"
+                  className="text-muted hover:text-ink text-2xl leading-none"
                 >
                   ×
                 </button>
@@ -530,18 +530,18 @@ export default function Programas() {
                 <img
                   src={selectedPrograma.imagenUrl}
                   alt={selectedPrograma.titulo}
-                  className="w-full h-64 object-cover rounded-lg mb-4"
+                  className="w-full h-64 object-cover rounded-xl mb-4"
                 />
               )}
 
               {selectedPrograma.descripcion && (
-                <p className="text-gray-600 mb-4">
+                <p className="text-muted mb-4">
                   {selectedPrograma.descripcion}
                 </p>
               )}
 
               {selectedPrograma.descripcionCompleta && (
-                <p className="text-gray-600 mb-4 whitespace-pre-wrap">
+                <p className="text-muted mb-4 whitespace-pre-wrap">
                   {selectedPrograma.descripcionCompleta}
                 </p>
               )}
@@ -550,7 +550,7 @@ export default function Programas() {
                 {selectedPrograma.nivelDificultad && (
                   <div>
                     <span className="font-semibold">Nivel:</span>{" "}
-                    <span className="px-2 py-1 bg-blue-100 text-blue-800 rounded">
+                    <span className="px-2 py-1 bg-blue-100 text-brand rounded">
                       {selectedPrograma.nivelDificultad}
                     </span>
                   </div>
@@ -587,7 +587,7 @@ export default function Programas() {
                 selectedPrograma.beneficios.length > 0 && (
                   <div className="mb-4">
                     <h3 className="font-semibold mb-2">Beneficios</h3>
-                    <ul className="list-disc list-inside text-sm text-gray-600 space-y-1">
+                    <ul className="list-disc list-inside text-sm text-muted space-y-1">
                       {selectedPrograma.beneficios.map((b, i) => (
                         <li key={i}>{b}</li>
                       ))}
@@ -605,7 +605,7 @@ export default function Programas() {
                       {selectedPrograma.entrenamientos.map((entrenamiento) => (
                         <li
                           key={entrenamiento.idEntrenamiento}
-                          className="text-sm text-gray-700"
+                          className="text-sm text-ink"
                         >
                           {entrenamiento.nombre}
                         </li>
@@ -620,13 +620,13 @@ export default function Programas() {
                     setSelectedPrograma(null);
                     handleEdit(selectedPrograma);
                   }}
-                  className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+                  className="flex-1 px-4 py-2 bg-brand text-brand-fg rounded-xl hover:opacity-90"
                 >
                   Editar
                 </button>
                 <button
                   onClick={() => setSelectedPrograma(null)}
-                  className="flex-1 px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50"
+                  className="flex-1 px-4 py-2 border border-line rounded-xl hover:bg-canvas"
                 >
                   Cerrar
                 </button>

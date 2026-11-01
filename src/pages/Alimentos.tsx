@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+﻿import { useEffect, useState } from "react";
 import ConfirmacionModal from "../components/ConfirmacionModal";
 import DiagnosticoExcelModal, {
   type ResultadoExcel,
@@ -436,7 +436,7 @@ export default function Alimentos() {
     step = "any"
   ) => (
     <div>
-      <label className="block text-sm font-medium text-gray-700 mb-1">
+      <label className="block text-sm font-medium text-ink mb-1">
         {label}
       </label>
       <input
@@ -444,24 +444,24 @@ export default function Alimentos() {
         step={step}
         value={formData[key] as NumField}
         onChange={(e) => setField(key, parseNumInput(e.target.value) as any)}
-        className="w-full px-3 py-2 border border-gray-300 rounded-lg"
+        className="w-full px-3 py-2 border border-line rounded-xl"
       />
     </div>
   );
 
   return (
     <Layout>
-      <div className="px-4 py-6 sm:px-0">
+      <div className="space-y-6">
         <div className="mb-6 flex justify-between items-center">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900">Alimentos</h1>
-            <p className="mt-2 text-gray-600">
+            <h1 className="panel-header">Alimentos</h1>
+            <p className="mt-2 text-muted">
               Gestiona la base de datos de alimentos
             </p>
           </div>
           <button
             onClick={abrirNuevo}
-            className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+            className="px-4 py-2 bg-brand text-brand-fg rounded-xl hover:opacity-90"
           >
             + Nuevo alimento
           </button>
@@ -472,9 +472,9 @@ export default function Alimentos() {
           onCerrar={() => setMessage(null)}
         />
 
-        <div className="bg-white shadow rounded-lg p-6 mb-6">
+        <div className="panel-card p-6 mb-6">
           <h2 className="text-xl font-semibold mb-4">Cargar Archivo Excel</h2>
-          <p className="mb-4 text-sm text-gray-600">
+          <p className="mb-4 text-sm text-muted">
             Descargá la plantilla, completá los alimentos (hay un ejemplo y una hoja de
             instrucciones) y después subí el archivo. No cambies los nombres de las columnas.
           </p>
@@ -491,7 +491,7 @@ export default function Alimentos() {
                   });
                 }
               }}
-              className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700"
+              className="px-4 py-2 bg-green-600 text-white rounded-xl hover:opacity-90"
             >
               Descargar plantilla Excel
             </button>
@@ -501,20 +501,20 @@ export default function Alimentos() {
                 setResultadoExcel(null);
                 setShowExcelModal(true);
               }}
-              className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+              className="px-4 py-2 bg-brand text-brand-fg rounded-xl hover:opacity-90"
             >
               Seleccionar Archivo Excel
             </button>
             <button
               onClick={() => setShowDeleteAllModal(true)}
-              className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700"
+              className="px-4 py-2 bg-red-600 text-white rounded-xl hover:opacity-90"
             >
               Eliminar Todos
             </button>
           </div>
         </div>
 
-        <div className="bg-white shadow rounded-lg p-6 mb-6">
+        <div className="panel-card p-6 mb-6">
           <div className="flex justify-between items-center mb-4">
             <h2 className="text-xl font-semibold">
               Lista de Alimentos ({total})
@@ -524,79 +524,79 @@ export default function Alimentos() {
               placeholder="Buscar por nombre..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+              className="px-4 py-2 border border-line rounded-xl focus:ring-2 focus:ring-brand/40"
             />
           </div>
 
           {loading ? (
             <div className="text-center py-8">Cargando...</div>
           ) : alimentos.length === 0 ? (
-            <div className="text-center py-8 text-gray-500">
+            <div className="text-center py-8 text-muted">
               No hay alimentos cargados
             </div>
           ) : (
             <div className="overflow-x-auto">
-              <table className="min-w-full divide-y divide-gray-200">
-                <thead className="bg-gray-50">
+              <table className="min-w-full divide-y divide-line">
+                <thead className="bg-canvas">
                   <tr>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    <th className="px-6 py-3 text-left text-xs font-medium text-muted uppercase tracking-wider">
                       Nombre
                     </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    <th className="px-6 py-3 text-left text-xs font-medium text-muted uppercase tracking-wider">
                       Categoría
                     </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    <th className="px-6 py-3 text-left text-xs font-medium text-muted uppercase tracking-wider">
                       Cantidad Base
                     </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    <th className="px-6 py-3 text-left text-xs font-medium text-muted uppercase tracking-wider">
                       Kcal
                     </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    <th className="px-6 py-3 text-left text-xs font-medium text-muted uppercase tracking-wider">
                       Proteína
                     </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    <th className="px-6 py-3 text-left text-xs font-medium text-muted uppercase tracking-wider">
                       Carbohidratos
                     </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    <th className="px-6 py-3 text-left text-xs font-medium text-muted uppercase tracking-wider">
                       Grasa
                     </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    <th className="px-6 py-3 text-left text-xs font-medium text-muted uppercase tracking-wider">
                       Acciones
                     </th>
                   </tr>
                 </thead>
-                <tbody className="bg-white divide-y divide-gray-200">
+                <tbody className="bg-surface divide-y divide-line">
                   {alimentos.map((alimento) => (
                     <tr key={alimento.idAlimento}>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                      <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-ink">
                         {alimento.nombre}
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-muted">
                         {alimento.categoria?.nombre || "-"}
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-muted">
                         {alimento.baseCantidad} {alimento.baseUnidad}
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-muted">
                         {alimento.kcal?.toFixed(1) || "-"}
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-muted">
                         {alimento.proteina?.toFixed(1) || "-"}g
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-muted">
                         {alimento.carbohidratos?.toFixed(1) || "-"}g
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-muted">
                         {alimento.grasaTotal?.toFixed(1) || "-"}g
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-muted">
                         <div className="flex space-x-2">
                           <button
                             onClick={() => {
                               setSelectedAlimento(alimento);
                               setShowDetailsModal(true);
                             }}
-                            className="text-blue-600 hover:text-blue-800 focus:outline-none"
+                            className="text-brand hover:opacity-80 focus:outline-none"
                             title="Ver detalles"
                           >
                             <svg
@@ -681,9 +681,9 @@ export default function Alimentos() {
               }
             }}
           >
-            <div className="bg-white rounded-lg shadow-xl w-full max-w-4xl max-h-[90vh] flex flex-col">
-              <div className="flex justify-between items-center p-4 sm:p-6 border-b border-gray-200 flex-shrink-0">
-                <h3 className="text-xl sm:text-2xl font-bold text-gray-900 pr-4">
+            <div className="bg-surface rounded-xl shadow-xl w-full max-w-4xl max-h-[90vh] flex flex-col">
+              <div className="flex justify-between items-center p-4 sm:p-6 border-b border-line flex-shrink-0">
+                <h3 className="text-xl sm:text-2xl font-bold text-ink pr-4">
                   Detalles del Alimento
                 </h3>
                 <button
@@ -691,7 +691,7 @@ export default function Alimentos() {
                     setShowDetailsModal(false);
                     setSelectedAlimento(null);
                   }}
-                  className="text-gray-400 hover:text-gray-600 flex-shrink-0"
+                  className="text-gray-400 hover:text-muted flex-shrink-0"
                 >
                   <svg
                     className="h-6 w-6"
@@ -714,29 +714,29 @@ export default function Alimentos() {
                   <img
                     src={urlMedia(selectedAlimento.imagenStorageUrl)}
                     alt={selectedAlimento.nombre}
-                    className="mb-6 h-40 w-auto rounded-lg object-cover"
+                    className="mb-6 h-40 w-auto rounded-xl object-cover"
                   />
                 )}
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div className="space-y-4">
-                    <h4 className="text-lg font-semibold text-gray-700 border-b pb-2">
+                    <h4 className="text-lg font-semibold text-ink border-b border-line pb-2">
                       Información Básica
                     </h4>
                     <div>
-                      <p className="text-sm text-gray-500">Nombre</p>
+                      <p className="text-sm text-muted">Nombre</p>
                       <p className="text-base font-medium">
                         {selectedAlimento.nombre}
                       </p>
                     </div>
                     <div>
-                      <p className="text-sm text-gray-500">Categoría</p>
+                      <p className="text-sm text-muted">Categoría</p>
                       <p className="text-base font-medium">
                         {selectedAlimento.categoria?.nombre || "-"}
                       </p>
                     </div>
                     <div>
-                      <p className="text-sm text-gray-500">Cantidad Base</p>
+                      <p className="text-sm text-muted">Cantidad Base</p>
                       <p className="text-base font-medium">
                         {selectedAlimento.baseCantidad}{" "}
                         {selectedAlimento.baseUnidad}
@@ -744,7 +744,7 @@ export default function Alimentos() {
                     </div>
                     {selectedAlimento.porcionDescripcion && (
                       <div>
-                        <p className="text-sm text-gray-500">
+                        <p className="text-sm text-muted">
                           Porción Descripción
                         </p>
                         <p className="text-base font-medium">
@@ -754,7 +754,7 @@ export default function Alimentos() {
                     )}
                     {selectedAlimento.porcionGramos && (
                       <div>
-                        <p className="text-sm text-gray-500">Porción (gramos)</p>
+                        <p className="text-sm text-muted">Porción (gramos)</p>
                         <p className="text-base font-medium">
                           {selectedAlimento.porcionGramos}g
                         </p>
@@ -762,7 +762,7 @@ export default function Alimentos() {
                     )}
                     {selectedAlimento.dataSource && (
                       <div>
-                        <p className="text-sm text-gray-500">Fuente de Datos</p>
+                        <p className="text-sm text-muted">Fuente de Datos</p>
                         <p className="text-base font-medium">
                           {selectedAlimento.dataSource}
                         </p>
@@ -771,13 +771,13 @@ export default function Alimentos() {
                   </div>
 
                   <div className="space-y-4">
-                    <h4 className="text-lg font-semibold text-gray-700 border-b pb-2">
+                    <h4 className="text-lg font-semibold text-ink border-b border-line pb-2">
                       Valores Nutricionales (por 100g)
                     </h4>
                     <div className="grid grid-cols-2 gap-4">
                       {selectedAlimento.kcal !== undefined && (
                         <div>
-                          <p className="text-sm text-gray-500">
+                          <p className="text-sm text-muted">
                             Calorías (kcal)
                           </p>
                           <p className="text-base font-medium">
@@ -787,7 +787,7 @@ export default function Alimentos() {
                       )}
                       {selectedAlimento.proteina !== undefined && (
                         <div>
-                          <p className="text-sm text-gray-500">Proteína (g)</p>
+                          <p className="text-sm text-muted">Proteína (g)</p>
                           <p className="text-base font-medium">
                             {selectedAlimento.proteina.toFixed(1)}g
                           </p>
@@ -795,7 +795,7 @@ export default function Alimentos() {
                       )}
                       {selectedAlimento.grasaTotal !== undefined && (
                         <div>
-                          <p className="text-sm text-gray-500">
+                          <p className="text-sm text-muted">
                             Grasa Total (g)
                           </p>
                           <p className="text-base font-medium">
@@ -805,7 +805,7 @@ export default function Alimentos() {
                       )}
                       {selectedAlimento.grasaSaturada !== undefined && (
                         <div>
-                          <p className="text-sm text-gray-500">
+                          <p className="text-sm text-muted">
                             Grasa Saturada (g)
                           </p>
                           <p className="text-base font-medium">
@@ -815,7 +815,7 @@ export default function Alimentos() {
                       )}
                       {selectedAlimento.carbohidratos !== undefined && (
                         <div>
-                          <p className="text-sm text-gray-500">
+                          <p className="text-sm text-muted">
                             Carbohidratos (g)
                           </p>
                           <p className="text-base font-medium">
@@ -825,7 +825,7 @@ export default function Alimentos() {
                       )}
                       {selectedAlimento.azucares !== undefined && (
                         <div>
-                          <p className="text-sm text-gray-500">Azúcares (g)</p>
+                          <p className="text-sm text-muted">Azúcares (g)</p>
                           <p className="text-base font-medium">
                             {selectedAlimento.azucares.toFixed(1)}g
                           </p>
@@ -833,7 +833,7 @@ export default function Alimentos() {
                       )}
                       {selectedAlimento.fibra !== undefined && (
                         <div>
-                          <p className="text-sm text-gray-500">Fibra (g)</p>
+                          <p className="text-sm text-muted">Fibra (g)</p>
                           <p className="text-base font-medium">
                             {selectedAlimento.fibra.toFixed(1)}g
                           </p>
@@ -841,7 +841,7 @@ export default function Alimentos() {
                       )}
                       {selectedAlimento.sodio !== undefined && (
                         <div>
-                          <p className="text-sm text-gray-500">Sodio (mg)</p>
+                          <p className="text-sm text-muted">Sodio (mg)</p>
                           <p className="text-base font-medium">
                             {selectedAlimento.sodio.toFixed(1)}mg
                           </p>
@@ -854,12 +854,12 @@ export default function Alimentos() {
                     selectedAlimento.proteinaPorPorcion !== undefined ||
                     selectedAlimento.grasaTotalPorPorcion !== undefined) && (
                     <div className="space-y-4 md:col-span-2">
-                      <div className="border-b pb-2">
-                        <h4 className="text-lg font-semibold text-gray-700">
+                      <div className="border-b border-line pb-2">
+                        <h4 className="text-lg font-semibold text-ink">
                           Valores Nutricionales (por Porción)
                         </h4>
                         {selectedAlimento.porcionGramos && (
-                          <p className="text-sm text-gray-500 mt-1">
+                          <p className="text-sm text-muted mt-1">
                             Porción: {selectedAlimento.porcionGramos}g
                           </p>
                         )}
@@ -867,7 +867,7 @@ export default function Alimentos() {
                       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                         {selectedAlimento.kcalPorPorcion !== undefined && (
                           <div>
-                            <p className="text-sm text-gray-500">
+                            <p className="text-sm text-muted">
                               Calorías (kcal)
                             </p>
                             <p className="text-base font-medium">
@@ -877,7 +877,7 @@ export default function Alimentos() {
                         )}
                         {selectedAlimento.proteinaPorPorcion !== undefined && (
                           <div>
-                            <p className="text-sm text-gray-500">Proteína (g)</p>
+                            <p className="text-sm text-muted">Proteína (g)</p>
                             <p className="text-base font-medium">
                               {selectedAlimento.proteinaPorPorcion.toFixed(1)}g
                             </p>
@@ -886,7 +886,7 @@ export default function Alimentos() {
                         {selectedAlimento.grasaTotalPorPorcion !==
                           undefined && (
                           <div>
-                            <p className="text-sm text-gray-500">
+                            <p className="text-sm text-muted">
                               Grasa Total (g)
                             </p>
                             <p className="text-base font-medium">
@@ -900,7 +900,7 @@ export default function Alimentos() {
                         {selectedAlimento.grasaSaturadaPorPorcion !==
                           undefined && (
                           <div>
-                            <p className="text-sm text-gray-500">
+                            <p className="text-sm text-muted">
                               Grasa Saturada (g)
                             </p>
                             <p className="text-base font-medium">
@@ -914,7 +914,7 @@ export default function Alimentos() {
                         {selectedAlimento.carbohidratosPorPorcion !==
                           undefined && (
                           <div>
-                            <p className="text-sm text-gray-500">
+                            <p className="text-sm text-muted">
                               Carbohidratos (g)
                             </p>
                             <p className="text-base font-medium">
@@ -927,7 +927,7 @@ export default function Alimentos() {
                         )}
                         {selectedAlimento.azucaresPorPorcion !== undefined && (
                           <div>
-                            <p className="text-sm text-gray-500">Azúcares (g)</p>
+                            <p className="text-sm text-muted">Azúcares (g)</p>
                             <p className="text-base font-medium">
                               {selectedAlimento.azucaresPorPorcion.toFixed(1)}g
                             </p>
@@ -935,7 +935,7 @@ export default function Alimentos() {
                         )}
                         {selectedAlimento.fibraPorPorcion !== undefined && (
                           <div>
-                            <p className="text-sm text-gray-500">Fibra (g)</p>
+                            <p className="text-sm text-muted">Fibra (g)</p>
                             <p className="text-base font-medium">
                               {selectedAlimento.fibraPorPorcion.toFixed(1)}g
                             </p>
@@ -943,7 +943,7 @@ export default function Alimentos() {
                         )}
                         {selectedAlimento.sodioPorPorcion !== undefined && (
                           <div>
-                            <p className="text-sm text-gray-500">Sodio (mg)</p>
+                            <p className="text-sm text-muted">Sodio (mg)</p>
                             <p className="text-base font-medium">
                               {selectedAlimento.sodioPorPorcion.toFixed(1)}mg
                             </p>
@@ -956,13 +956,13 @@ export default function Alimentos() {
                   {(selectedAlimento.createdAt ||
                     selectedAlimento.updatedAt) && (
                     <div className="space-y-2 md:col-span-2 border-t pt-4">
-                      <h4 className="text-lg font-semibold text-gray-700">
+                      <h4 className="text-lg font-semibold text-ink">
                         Información del Sistema
                       </h4>
                       <div className="grid grid-cols-2 gap-4">
                         {selectedAlimento.createdAt && (
                           <div>
-                            <p className="text-sm text-gray-500">
+                            <p className="text-sm text-muted">
                               Fecha de Creación
                             </p>
                             <p className="text-base font-medium">
@@ -974,7 +974,7 @@ export default function Alimentos() {
                         )}
                         {selectedAlimento.updatedAt && (
                           <div>
-                            <p className="text-sm text-gray-500">
+                            <p className="text-sm text-muted">
                               Última Actualización
                             </p>
                             <p className="text-base font-medium">
@@ -990,13 +990,13 @@ export default function Alimentos() {
                 </div>
               </div>
 
-              <div className="flex justify-end p-4 sm:p-6 border-t border-gray-200 flex-shrink-0">
+              <div className="flex justify-end p-4 sm:p-6 border-t border-line flex-shrink-0">
                 <button
                   onClick={() => {
                     setShowDetailsModal(false);
                     setSelectedAlimento(null);
                   }}
-                  className="px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700"
+                  className="px-4 py-2 bg-surface-2 text-ink rounded-xl hover:bg-gray-700"
                 >
                   Cerrar
                 </button>
@@ -1045,14 +1045,14 @@ export default function Alimentos() {
         {/* Modal Crear / Editar */}
         {showEditModal && (
           <div
-            className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4"
+            className="fixed inset-0 bg-black/55 backdrop-blur-sm flex items-center justify-center z-50 p-4"
             onClick={(e) => {
               if (e.target === e.currentTarget) {
                 cerrarEdicion();
               }
             }}
           >
-            <div className="bg-white rounded-lg w-full max-w-2xl max-h-[90vh] flex flex-col">
+            <div className="bg-surface rounded-xl w-full max-w-2xl max-h-[90vh] flex flex-col">
               <form
                 onSubmit={handleSubmit}
                 className="flex flex-col flex-1 min-h-0"
@@ -1063,19 +1063,19 @@ export default function Alimentos() {
                   </h2>
                   <div className="space-y-4">
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                      <label className="block text-sm font-medium text-ink mb-1">
                         Nombre *
                       </label>
                       <input
                         type="text"
                         value={formData.nombre}
                         onChange={(e) => setField("nombre", e.target.value)}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-lg"
+                        className="w-full px-3 py-2 border border-line rounded-xl"
                         required
                       />
                     </div>
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                      <label className="block text-sm font-medium text-ink mb-1">
                         Categoría *
                       </label>
                       <input
@@ -1083,16 +1083,16 @@ export default function Alimentos() {
                         value={formData.categoria}
                         onChange={(e) => setField("categoria", e.target.value)}
                         placeholder="Ej: Frutas, Lácteos..."
-                        className="w-full px-3 py-2 border border-gray-300 rounded-lg"
+                        className="w-full px-3 py-2 border border-line rounded-xl"
                         required
                       />
-                      <p className="mt-1 text-xs text-gray-500">
+                      <p className="mt-1 text-xs text-muted">
                         Texto libre: el API busca o crea la categoría.
                       </p>
                     </div>
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                       <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                        <label className="block text-sm font-medium text-ink mb-1">
                           Cantidad base
                         </label>
                         <input
@@ -1105,11 +1105,11 @@ export default function Alimentos() {
                               parseNumInput(e.target.value)
                             )
                           }
-                          className="w-full px-3 py-2 border border-gray-300 rounded-lg"
+                          className="w-full px-3 py-2 border border-line rounded-xl"
                         />
                       </div>
                       <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                        <label className="block text-sm font-medium text-ink mb-1">
                           Unidad base
                         </label>
                         <input
@@ -1118,13 +1118,13 @@ export default function Alimentos() {
                           onChange={(e) =>
                             setField("baseUnidad", e.target.value)
                           }
-                          className="w-full px-3 py-2 border border-gray-300 rounded-lg"
+                          className="w-full px-3 py-2 border border-line rounded-xl"
                         />
                       </div>
                     </div>
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                       <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                        <label className="block text-sm font-medium text-ink mb-1">
                           Descripción de porción
                         </label>
                         <input
@@ -1133,14 +1133,14 @@ export default function Alimentos() {
                           onChange={(e) =>
                             setField("porcionDescripcion", e.target.value)
                           }
-                          className="w-full px-3 py-2 border border-gray-300 rounded-lg"
+                          className="w-full px-3 py-2 border border-line rounded-xl"
                         />
                       </div>
                       {inputNumber("Porción (gramos)", "porcionGramos")}
                     </div>
 
                     <div>
-                      <h3 className="text-sm font-semibold text-gray-700 border-b pb-2 mb-3">
+                      <h3 className="text-sm font-semibold text-ink border-b border-line pb-2 mb-3">
                         Valores nutricionales (base)
                       </h3>
                       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
@@ -1161,7 +1161,7 @@ export default function Alimentos() {
                         onClick={() =>
                           setMostrarPorcionExtras((v) => !v)
                         }
-                        className="text-sm font-medium text-blue-600 hover:text-blue-800"
+                        className="text-sm font-medium text-brand hover:opacity-80"
                       >
                         {mostrarPorcionExtras
                           ? "▾ Ocultar valores por porción"
@@ -1197,21 +1197,21 @@ export default function Alimentos() {
                     </div>
 
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                      <label className="block text-sm font-medium text-ink mb-1">
                         Fuente de datos
                       </label>
                       <input
                         type="text"
                         value={formData.dataSource}
                         onChange={(e) => setField("dataSource", e.target.value)}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-lg"
+                        className="w-full px-3 py-2 border border-line rounded-xl"
                       />
                     </div>
 
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                      <label className="block text-sm font-medium text-ink mb-1">
                         Imagen{" "}
-                        <span className="font-normal text-gray-500">
+                        <span className="font-normal text-muted">
                           (opcional)
                         </span>
                       </label>
@@ -1224,7 +1224,7 @@ export default function Alimentos() {
                               urlMedia(editing?.imagenStorageUrl)
                             }
                             alt={formData.nombre || "Alimento"}
-                            className="mb-2 h-32 w-auto rounded-lg object-cover"
+                            className="mb-2 h-32 w-auto rounded-xl object-cover"
                           />
                         )}
                       {quitarImagen && (
@@ -1250,7 +1250,7 @@ export default function Alimentos() {
                             setQuitarImagen(true);
                             setImagenArchivo(null);
                           }}
-                          className="mt-3 inline-flex items-center rounded-lg border border-red-200 bg-red-50 px-3 py-1.5 text-sm font-medium text-red-700 hover:bg-red-100"
+                          className="mt-3 inline-flex items-center rounded-xl border border-red-200 bg-red-50 px-3 py-1.5 text-sm font-medium text-red-700 hover:bg-red-100"
                         >
                           Quitar imagen
                         </button>
@@ -1259,18 +1259,18 @@ export default function Alimentos() {
                   </div>
                 </div>
 
-                <div className="flex space-x-2 p-4 sm:p-6 border-t border-gray-200 flex-shrink-0">
+                <div className="flex space-x-2 p-4 sm:p-6 border-t border-line flex-shrink-0">
                   <button
                     type="button"
                     onClick={cerrarEdicion}
-                    className="flex-1 rounded-lg border border-gray-300 px-4 py-2 hover:bg-gray-50"
+                    className="flex-1 rounded-xl border border-line px-4 py-2 hover:bg-canvas"
                   >
                     Cancelar
                   </button>
                   <button
                     type="submit"
                     disabled={guardando}
-                    className="flex-1 rounded-lg bg-blue-600 px-4 py-2 font-medium text-white hover:bg-blue-700 disabled:opacity-60"
+                    className="flex-1 rounded-xl bg-brand px-4 py-2 font-medium text-brand-fg hover:opacity-90 disabled:opacity-60"
                   >
                     {guardando
                       ? "Guardando..."

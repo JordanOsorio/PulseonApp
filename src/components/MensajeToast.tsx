@@ -15,7 +15,6 @@ export default function MensajeToast({
     if (!mensaje) return;
     const timer = window.setTimeout(onCerrar, segundos * 1000);
     return () => window.clearTimeout(timer);
-    // Solo reinicia el timer cuando cambia el mensaje
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [mensaje?.type, mensaje?.text, segundos]);
 
@@ -24,10 +23,10 @@ export default function MensajeToast({
   return (
     <div className="pointer-events-none fixed bottom-4 right-4 z-[80] max-w-sm sm:max-w-md">
       <div
-        className={`pointer-events-auto rounded-lg border px-4 py-3 shadow-lg ${
+        className={`pointer-events-auto rounded-2xl border px-4 py-3 shadow-panel dark:shadow-panel-dark ${
           mensaje.type === "success"
-            ? "border-green-200 bg-green-50 text-green-800"
-            : "border-red-200 bg-red-50 text-red-800"
+            ? "border-emerald-500/30 bg-emerald-500/10 text-emerald-800 dark:text-emerald-200"
+            : "border-red-500/30 bg-red-500/10 text-red-800 dark:text-red-200"
         }`}
       >
         <div className="flex items-start gap-3">

@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+﻿import { useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import ConfirmacionModal from "../components/ConfirmacionModal";
 import DiagnosticoExcelModal, {
@@ -375,44 +375,44 @@ export default function Categorias() {
 
   return (
     <Layout>
-      <div className="px-4 py-6 sm:px-0">
+      <div className="space-y-6">
         <div className="mb-6">
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">
+          <h1 className="panel-header mb-2">
             Gestión de Ejercicios
           </h1>
-          <p className="text-gray-600 mb-4">
+          <p className="text-muted mb-4">
             Gestiona categorías, músculos e implementos
           </p>
 
           {/* Tabs */}
-          <div className="border-b border-gray-200">
+          <div className="border-b border-line">
             <nav className="-mb-px flex space-x-8">
               <button
                 onClick={() => handleTabChange("categorias")}
-                className={`py-4 px-1 border-b-2 font-medium text-sm ${
+                className={`py-4 px-1 border-b border-line-2 font-medium text-sm ${
                   activeTab === "categorias"
-                    ? "border-blue-500 text-blue-600"
-                    : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
+                    ? "border-b border-brand text-brand"
+                    : "border-transparent text-muted hover:text-ink hover:border-line"
                 }`}
               >
                 Categorías
               </button>
               <button
                 onClick={() => handleTabChange("musculos")}
-                className={`py-4 px-1 border-b-2 font-medium text-sm ${
+                className={`py-4 px-1 border-b border-line-2 font-medium text-sm ${
                   activeTab === "musculos"
-                    ? "border-blue-500 text-blue-600"
-                    : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
+                    ? "border-b border-brand text-brand"
+                    : "border-transparent text-muted hover:text-ink hover:border-line"
                 }`}
               >
                 Músculos
               </button>
               <button
                 onClick={() => handleTabChange("equipos")}
-                className={`py-4 px-1 border-b-2 font-medium text-sm ${
+                className={`py-4 px-1 border-b border-line-2 font-medium text-sm ${
                   activeTab === "equipos"
-                    ? "border-blue-500 text-blue-600"
-                    : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
+                    ? "border-b border-brand text-brand"
+                    : "border-transparent text-muted hover:text-ink hover:border-line"
                 }`}
               >
                 Equipos / Implementos
@@ -423,10 +423,10 @@ export default function Categorias() {
 
         <div className="mb-6 flex justify-between items-center">
           <div>
-            <h2 className="text-2xl font-semibold text-gray-900">
+            <h2 className="text-2xl font-semibold text-ink">
               {getTitle()}
             </h2>
-            <p className="mt-1 text-gray-600">
+            <p className="mt-1 text-muted">
               {activeTab === "categorias" &&
                 "Gestiona las categorías de ejercicios"}
               {activeTab === "musculos" &&
@@ -447,7 +447,7 @@ export default function Categorias() {
               });
               setShowModal(true);
             }}
-            className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+            className="px-4 py-2 bg-brand text-brand-fg rounded-xl hover:opacity-90"
           >
             {getNewButtonLabel()}
           </button>
@@ -458,7 +458,7 @@ export default function Categorias() {
           onCerrar={() => setMessage(null)}
         />
 
-        <div className="bg-white shadow rounded-lg p-6 mb-6">
+        <div className="panel-card p-6 mb-6">
           <h3 className="text-lg font-semibold mb-4">Carga masiva</h3>
           <div className="flex flex-wrap items-center gap-4">
             <button
@@ -467,18 +467,18 @@ export default function Categorias() {
                 setResultadoExcel(null);
                 setShowExcelModal(true);
               }}
-              className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+              className="px-4 py-2 bg-brand text-brand-fg rounded-xl hover:opacity-90"
             >
               Cargar Excel
             </button>
             <button
               type="button"
               onClick={() => setShowDeleteAllModal(true)}
-              className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700"
+              className="px-4 py-2 bg-red-600 text-white rounded-xl hover:opacity-90"
             >
               Eliminar Todos
             </button>
-            <p className="text-sm text-gray-500">
+            <p className="text-sm text-muted">
               {activeTab === "categorias" &&
                 "Columnas: nombre (req), descripcion, imagenUrl"}
               {activeTab === "musculos" &&
@@ -502,30 +502,30 @@ export default function Categorias() {
                   (item as Musculo | Equipo).iconoUrl;
 
               return (
-                <div key={itemId} className="bg-white rounded-lg shadow-md p-6">
+                <div key={itemId} className="bg-surface rounded-xl shadow-panel dark:shadow-panel-dark p-6">
                   {imagenUrl && (
                     <img
                       src={imagenUrl}
                       alt={item.nombre}
-                      className="w-full h-48 object-cover rounded-lg mb-4"
+                      className="w-full h-48 object-cover rounded-xl mb-4"
                     />
                   )}
                   <h3 className="text-xl font-semibold mb-2">{item.nombre}</h3>
                   {item.descripcion && (
-                    <p className="text-gray-600 text-sm mb-4">
+                    <p className="text-muted text-sm mb-4">
                       {item.descripcion}
                     </p>
                   )}
                   <div className="flex space-x-2">
                     <button
                       onClick={() => handleEdit(item)}
-                      className="flex-1 px-3 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+                      className="flex-1 px-3 py-2 bg-brand text-brand-fg rounded hover:opacity-90"
                     >
                       Editar
                     </button>
                     <button
                       onClick={() => setIdAEliminar(itemId)}
-                      className="flex-1 px-3 py-2 bg-red-600 text-white rounded hover:bg-red-700"
+                      className="flex-1 px-3 py-2 bg-red-600 text-white rounded hover:opacity-90"
                     >
                       Eliminar
                     </button>
@@ -580,8 +580,8 @@ export default function Categorias() {
         />
 
         {showModal && (
-          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-            <div className="bg-white rounded-lg p-6 w-full max-w-md max-h-[90vh] overflow-y-auto">
+          <div className="fixed inset-0 bg-black/55 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+            <div className="bg-surface rounded-xl p-6 w-full max-w-md max-h-[90vh] overflow-y-auto">
               <h2 className="text-2xl font-bold mb-4">
                 {editing ? "Editar" : activeTab === "categorias" ? "Nueva" : "Nuevo"}{" "}
                 {activeTab === "categorias"
@@ -592,7 +592,7 @@ export default function Categorias() {
               </h2>
               <form onSubmit={handleSubmit} className="space-y-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                  <label className="block text-sm font-medium text-ink mb-1">
                     Nombre *
                   </label>
                   <input
@@ -601,12 +601,12 @@ export default function Categorias() {
                     onChange={(e) =>
                       setFormData({ ...formData, nombre: e.target.value })
                     }
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg"
+                    className="w-full px-3 py-2 border border-line rounded-xl"
                     required
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                  <label className="block text-sm font-medium text-ink mb-1">
                     Descripción
                   </label>
                   <textarea
@@ -614,17 +614,17 @@ export default function Categorias() {
                     onChange={(e) =>
                       setFormData({ ...formData, descripcion: e.target.value })
                     }
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg"
+                    className="w-full px-3 py-2 border border-line rounded-xl"
                     rows={3}
                   />
                 </div>
                 {activeTab === "categorias" ? (
                   <div className="space-y-3">
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                      <label className="block text-sm font-medium text-ink mb-1">
                         Imagen (archivo)
                       </label>
-                      <p className="mb-2 text-xs text-gray-500">
+                      <p className="mb-2 text-xs text-muted">
                         Podés subir una imagen o, si preferís, pegar una URL abajo.
                       </p>
                       {!quitarImagen &&
@@ -638,7 +638,7 @@ export default function Categorias() {
                               )
                             }
                             alt={formData.nombre || "Categoría"}
-                            className="mb-3 h-36 w-auto rounded-lg object-cover"
+                            className="mb-3 h-36 w-auto rounded-xl object-cover"
                           />
                         )}
                       {quitarImagen && (
@@ -665,14 +665,14 @@ export default function Categorias() {
                             setQuitarImagen(true);
                             setImagenArchivo(null);
                           }}
-                          className="mt-2 inline-flex items-center rounded-lg border border-red-200 bg-red-50 px-3 py-1.5 text-sm font-medium text-red-700 hover:bg-red-100"
+                          className="mt-2 inline-flex items-center rounded-xl border border-red-200 bg-red-50 px-3 py-1.5 text-sm font-medium text-red-700 hover:bg-red-100"
                         >
                           Quitar imagen
                         </button>
                       )}
                     </div>
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                      <label className="block text-sm font-medium text-ink mb-1">
                         URL de Imagen (opcional)
                       </label>
                       <input
@@ -684,14 +684,14 @@ export default function Categorias() {
                             imagenUrl: e.target.value,
                           })
                         }
-                        className="w-full px-3 py-2 border border-gray-300 rounded-lg"
+                        className="w-full px-3 py-2 border border-line rounded-xl"
                         placeholder="https://..."
                       />
                     </div>
                   </div>
                 ) : (
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                    <label className="block text-sm font-medium text-ink mb-1">
                       URL de Icono
                     </label>
                     <input
@@ -700,7 +700,7 @@ export default function Categorias() {
                       onChange={(e) =>
                         setFormData({ ...formData, iconoUrl: e.target.value })
                       }
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg"
+                      className="w-full px-3 py-2 border border-line rounded-xl"
                     />
                   </div>
                 )}
@@ -712,14 +712,14 @@ export default function Categorias() {
                       setEditing(null);
                       resetImagenState();
                     }}
-                    className="flex-1 px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50"
+                    className="flex-1 px-4 py-2 border border-line rounded-xl hover:bg-canvas"
                   >
                     Cancelar
                   </button>
                   <button
                     type="submit"
                     disabled={guardando}
-                    className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-60"
+                    className="flex-1 px-4 py-2 bg-brand text-brand-fg rounded-xl hover:opacity-90 disabled:opacity-60"
                   >
                     {guardando ? "Guardando..." : "Guardar"}
                   </button>

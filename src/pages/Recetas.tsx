@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+﻿import { useEffect, useMemo, useState } from "react";
 import ConfirmacionModal from "../components/ConfirmacionModal";
 import DiagnosticoExcelModal, {
   type ResultadoExcel,
@@ -475,29 +475,29 @@ export default function Recetas() {
 
   return (
     <Layout>
-      <div className="px-4 py-6 sm:px-0">
+      <div className="space-y-6">
         <div className="mb-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900">Recetas / Comidas</h1>
-            <p className="mt-1 text-gray-600">
+            <h1 className="panel-header">Recetas / Comidas</h1>
+            <p className="mt-1 text-muted">
               Creá, editá y eliminá preparaciones. Los ingredientes son
               Alimentos (existentes o nuevos al vuelo).
             </p>
           </div>
           <button
             onClick={abrirCrear}
-            className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 text-sm"
+            className="bg-brand text-brand-fg px-4 py-2 rounded-xl hover:opacity-90 text-sm"
           >
             + Nueva receta
           </button>
         </div>
 
-        <div className="bg-white shadow rounded-lg p-6 mb-6">
+        <div className="panel-card p-6 mb-6">
           <h2 className="text-xl font-semibold mb-2">Cargar Archivo Excel</h2>
-          <p className="mb-4 text-sm text-gray-600">
+          <p className="mb-4 text-sm text-muted">
             Descargá la plantilla (Recetas + Opciones). Incluye momento,
             nutrientes de la porción y código. Ingredientes:{" "}
-            <code className="text-xs bg-gray-100 px-1 rounded">
+            <code className="text-xs bg-surface-2 px-1 rounded">
               nombre|cantidad|unidad|categoria
             </code>{" "}
             separados por +.
@@ -515,7 +515,7 @@ export default function Recetas() {
                   });
                 }
               }}
-              className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700"
+              className="px-4 py-2 bg-green-600 text-white rounded-xl hover:opacity-90"
             >
               Descargar plantilla Excel
             </button>
@@ -525,13 +525,13 @@ export default function Recetas() {
                 setResultadoExcel(null);
                 setShowExcelModal(true);
               }}
-              className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+              className="px-4 py-2 bg-brand text-brand-fg rounded-xl hover:opacity-90"
             >
               Seleccionar Archivo Excel
             </button>
             <button
               onClick={() => setShowDeleteAll(true)}
-              className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700"
+              className="px-4 py-2 bg-red-600 text-white rounded-xl hover:opacity-90"
               disabled={recetas.length === 0}
             >
               Eliminar Todas
@@ -545,7 +545,7 @@ export default function Recetas() {
             <select
               value={filtroMomento}
               onChange={(e) => setFiltroMomento(e.target.value)}
-              className="border border-gray-300 rounded-md px-3 py-2 text-sm bg-white"
+              className="border border-line rounded-md px-3 py-2 text-sm bg-surface"
             >
               <option value="">Todos los momentos</option>
               {MOMENTOS.map((m) => (
@@ -559,15 +559,15 @@ export default function Recetas() {
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               placeholder="Buscar por nombre..."
-              className="w-full sm:w-64 border border-gray-300 rounded-md px-3 py-2 text-sm"
+              className="w-full sm:w-64 border border-line rounded-md px-3 py-2 text-sm"
             />
           </div>
         </div>
 
         {loading ? (
-          <p className="text-gray-500">Cargando...</p>
+          <p className="text-muted">Cargando...</p>
         ) : recetas.length === 0 ? (
-          <div className="bg-white border rounded-lg p-8 text-center text-gray-500">
+          <div className="bg-surface border rounded-xl p-8 text-center text-muted">
             Todavía no hay recetas. Creá una como “Tallarines con salsa”.
           </div>
         ) : (
@@ -575,7 +575,7 @@ export default function Recetas() {
             {recetas.map((receta) => (
               <div
                 key={receta.idReceta}
-                className="bg-white border rounded-lg overflow-hidden shadow-sm"
+                className="bg-surface border rounded-xl overflow-hidden shadow-panel dark:shadow-panel-dark"
               >
                 {receta.imagenStorageUrl ? (
                   <img
@@ -584,29 +584,29 @@ export default function Recetas() {
                     className="w-full h-40 object-cover"
                   />
                 ) : (
-                  <div className="w-full h-40 bg-amber-50 flex items-center justify-center text-4xl">
+                  <div className="w-full h-40 bg-accent-soft flex items-center justify-center text-4xl">
                     🍝
                   </div>
                 )}
                 <div className="p-4">
                   <div className="flex items-start justify-between gap-2">
-                    <h3 className="font-semibold text-gray-900">{receta.nombre}</h3>
-                    <span className="shrink-0 text-xs px-2 py-0.5 rounded-full bg-amber-100 text-amber-800 capitalize">
+                    <h3 className="font-semibold text-ink">{receta.nombre}</h3>
+                    <span className="shrink-0 text-xs px-2 py-0.5 rounded-full bg-brand-soft text-brand capitalize">
                       {receta.momento || "—"}
                     </span>
                   </div>
                   {receta.descripcion && (
-                    <p className="text-sm text-gray-600 mt-1 line-clamp-2">
+                    <p className="text-sm text-muted mt-1 line-clamp-2">
                       {receta.descripcion}
                     </p>
                   )}
-                  <p className="text-sm font-medium text-gray-800 mt-2">
+                  <p className="text-sm font-medium text-ink mt-2">
                     {Number(receta.kcal ?? 0).toFixed(0)} kcal
                     {receta.porcionDescripcion
                       ? ` · ${receta.porcionDescripcion}`
                       : ""}
                   </p>
-                  <p className="text-xs text-gray-500 mt-1">
+                  <p className="text-xs text-muted mt-1">
                     {receta.duracionMinutos
                       ? `${receta.duracionMinutos} min`
                       : "Sin duración"}
@@ -614,7 +614,7 @@ export default function Recetas() {
                     {receta.ingredientes?.length || 0} ingrediente(s)
                     {receta.publicado === false ? " · borrador" : ""}
                   </p>
-                  <ul className="mt-2 text-xs text-gray-600 space-y-0.5 max-h-20 overflow-auto">
+                  <ul className="mt-2 text-xs text-muted space-y-0.5 max-h-20 overflow-auto">
                     {(receta.ingredientes || []).slice(0, 5).map((ing) => (
                       <li key={ing.idRecetaIngrediente}>
                         · {ing.cantidad}
@@ -629,7 +629,7 @@ export default function Recetas() {
                         setSelected(receta);
                         setShowDetails(true);
                       }}
-                      className="text-blue-600 hover:text-blue-800 focus:outline-none"
+                      className="text-brand hover:opacity-80 focus:outline-none"
                       title="Ver detalles"
                     >
                       <svg
@@ -704,15 +704,15 @@ export default function Recetas() {
       </div>
 
       {showForm && (
-        <div className="fixed inset-0 z-40 bg-black/40 flex items-start justify-center overflow-y-auto p-4">
-          <div className="bg-white rounded-lg shadow-xl w-full max-w-2xl my-8">
-            <div className="px-5 py-4 border-b flex justify-between items-center">
+        <div className="fixed inset-0 z-40 bg-black/55 backdrop-blur-sm flex items-start justify-center overflow-y-auto p-4">
+          <div className="bg-surface rounded-xl shadow-xl w-full max-w-2xl my-8">
+            <div className="px-5 py-4 border-b border-line flex justify-between items-center">
               <h2 className="text-lg font-semibold">
                 {editing ? "Editar receta" : "Nueva receta"}
               </h2>
               <button
                 onClick={() => setShowForm(false)}
-                className="text-gray-500 hover:text-gray-800"
+                className="text-muted hover:text-ink"
               >
                 ✕
               </button>
@@ -721,7 +721,7 @@ export default function Recetas() {
             <div className="px-5 py-4 space-y-4 max-h-[75vh] overflow-y-auto">
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                  <label className="block text-sm font-medium text-ink mb-1">
                     Nombre *
                   </label>
                   <input
@@ -734,7 +734,7 @@ export default function Recetas() {
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                  <label className="block text-sm font-medium text-ink mb-1">
                     Momento *
                   </label>
                   <select
@@ -742,7 +742,7 @@ export default function Recetas() {
                     onChange={(e) =>
                       setFormData((p) => ({ ...p, momento: e.target.value }))
                     }
-                    className="w-full border rounded-md px-3 py-2 text-sm bg-white"
+                    className="w-full border rounded-md px-3 py-2 text-sm bg-surface"
                   >
                     {MOMENTOS.map((m) => (
                       <option key={m} value={m}>
@@ -755,7 +755,7 @@ export default function Recetas() {
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                  <label className="block text-sm font-medium text-ink mb-1">
                     Código
                   </label>
                   <input
@@ -768,7 +768,7 @@ export default function Recetas() {
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                  <label className="block text-sm font-medium text-ink mb-1">
                     Porción (descripción) *
                   </label>
                   <input
@@ -786,7 +786,7 @@ export default function Recetas() {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+                <label className="block text-sm font-medium text-ink mb-1">
                   Descripción *
                 </label>
                 <textarea
@@ -801,7 +801,7 @@ export default function Recetas() {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+                <label className="block text-sm font-medium text-ink mb-1">
                   Preparación
                 </label>
                 <textarea
@@ -817,7 +817,7 @@ export default function Recetas() {
 
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                  <label className="block text-sm font-medium text-ink mb-1">
                     Duración (min)
                   </label>
                   <input
@@ -835,7 +835,7 @@ export default function Recetas() {
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                  <label className="block text-sm font-medium text-ink mb-1">
                     Porciones (rinde)
                   </label>
                   <input
@@ -855,10 +855,10 @@ export default function Recetas() {
               </div>
 
               <div>
-                <h3 className="font-medium text-gray-900 mb-1">
+                <h3 className="font-medium text-ink mb-1">
                   Nutrientes de esa porción
                 </h3>
-                <p className="text-xs text-gray-500 mb-2">
+                <p className="text-xs text-muted mb-2">
                   Valores ya calculados para la porción (la app no recalcula).
                   Sodio en mg; el resto en g.
                 </p>
@@ -876,7 +876,7 @@ export default function Recetas() {
                     ] as const
                   ).map(([key, label]) => (
                     <div key={key}>
-                      <label className="block text-xs text-gray-600 mb-0.5">
+                      <label className="block text-xs text-muted mb-0.5">
                         {label}
                       </label>
                       <input
@@ -915,7 +915,7 @@ export default function Recetas() {
               </label>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+                <label className="block text-sm font-medium text-ink mb-1">
                   Imagen
                 </label>
                 {previewImagen && (
@@ -951,10 +951,10 @@ export default function Recetas() {
 
               <div className="border-t pt-4">
                 <div className="flex items-center justify-between mb-2">
-                  <h3 className="font-medium text-gray-900">Ingredientes</h3>
+                  <h3 className="font-medium text-ink">Ingredientes</h3>
                   <button
                     type="button"
-                    className="text-sm text-blue-600"
+                    className="text-sm text-brand"
                     onClick={() =>
                       setFormData((p) => ({
                         ...p,
@@ -965,7 +965,7 @@ export default function Recetas() {
                     + Agregar
                   </button>
                 </div>
-                <p className="text-xs text-gray-500 mb-3">
+                <p className="text-xs text-muted mb-3">
                   Podés elegir un alimento ya cargado o crear uno nuevo (queda
                   disponible también en Alimentos).
                 </p>
@@ -977,7 +977,7 @@ export default function Recetas() {
                   placeholder="Buscar alimento para agregar (ej: pollo, arroz)..."
                   className="w-full border rounded-md px-3 py-1.5 text-sm mb-1"
                 />
-                <p className="text-xs text-gray-500 mb-3">
+                <p className="text-xs text-muted mb-3">
                   Solo acota el desplegable “Elegí un alimento…”. No filtra las
                   recetas de la lista.
                 </p>
@@ -986,10 +986,10 @@ export default function Recetas() {
                   {formData.ingredientes.map((ing, idx) => (
                     <div
                       key={ing.key}
-                      className="border rounded-md p-3 bg-gray-50 space-y-2"
+                      className="border rounded-md p-3 bg-canvas space-y-2"
                     >
                       <div className="flex justify-between items-center">
-                        <span className="text-xs font-medium text-gray-500">
+                        <span className="text-xs font-medium text-muted">
                           #{idx + 1}
                         </span>
                         {formData.ingredientes.length > 1 && (
@@ -1047,7 +1047,7 @@ export default function Recetas() {
                               unidad: al?.baseUnidad || ing.unidad || "g",
                             });
                           }}
-                          className="w-full border rounded-md px-2 py-1.5 text-sm bg-white"
+                          className="w-full border rounded-md px-2 py-1.5 text-sm bg-surface"
                         >
                           <option value="">Elegí un alimento...</option>
                           {alimentosFiltrados.map((a) => (
@@ -1091,7 +1091,7 @@ export default function Recetas() {
                                 });
                               }
                             }}
-                            className="border rounded-md px-2 py-1.5 text-sm bg-white"
+                            className="border rounded-md px-2 py-1.5 text-sm bg-surface"
                           >
                             <option value="">Elegí categoría...</option>
                             {categoriasAlimento.map((nombre) => (
@@ -1163,7 +1163,7 @@ export default function Recetas() {
             <div className="px-5 py-4 border-t flex justify-end gap-2">
               <button
                 onClick={() => setShowForm(false)}
-                className="px-4 py-2 text-sm text-gray-700"
+                className="px-4 py-2 text-sm text-ink"
                 disabled={guardando}
               >
                 Cancelar
@@ -1171,7 +1171,7 @@ export default function Recetas() {
               <button
                 onClick={guardar}
                 disabled={guardando}
-                className="px-4 py-2 text-sm bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:opacity-50"
+                className="px-4 py-2 text-sm bg-brand text-brand-fg rounded-md hover:opacity-90 disabled:opacity-50"
               >
                 {guardando ? "Guardando..." : "Guardar"}
               </button>
@@ -1181,16 +1181,16 @@ export default function Recetas() {
       )}
 
       {showDetails && selected && (
-        <div className="fixed inset-0 z-40 bg-black/40 flex items-start justify-center overflow-y-auto p-4">
-          <div className="bg-white rounded-lg shadow-xl w-full max-w-lg my-8">
-            <div className="px-5 py-4 border-b flex justify-between items-center">
+        <div className="fixed inset-0 z-40 bg-black/55 backdrop-blur-sm flex items-start justify-center overflow-y-auto p-4">
+          <div className="bg-surface rounded-xl shadow-xl w-full max-w-lg my-8">
+            <div className="px-5 py-4 border-b border-line flex justify-between items-center">
               <h2 className="text-lg font-semibold">{selected.nombre}</h2>
               <button
                 onClick={() => {
                   setShowDetails(false);
                   setSelected(null);
                 }}
-                className="text-gray-500"
+                className="text-muted"
               >
                 ✕
               </button>
@@ -1208,23 +1208,23 @@ export default function Recetas() {
                 {selected.codigo ? ` · ${selected.codigo}` : ""}
               </p>
               {selected.descripcion && (
-                <p className="text-sm text-gray-700 whitespace-pre-wrap">
+                <p className="text-sm text-ink whitespace-pre-wrap">
                   {selected.descripcion}
                 </p>
               )}
-              <p className="text-sm font-medium text-gray-900">
+              <p className="text-sm font-medium text-ink">
                 {Number(selected.kcal ?? 0).toFixed(0)} kcal
                 {selected.porcionDescripcion
                   ? ` · ${selected.porcionDescripcion}`
                   : ""}
               </p>
-              <p className="text-xs text-gray-500">
+              <p className="text-xs text-muted">
                 P {Number(selected.proteina ?? 0).toFixed(1)}g · C{" "}
                 {Number(selected.carbohidratos ?? 0).toFixed(1)}g · G{" "}
                 {Number(selected.grasaTotal ?? 0).toFixed(1)}g · Na{" "}
                 {Number(selected.sodio ?? 0).toFixed(0)}mg
               </p>
-              <p className="text-sm text-gray-500">
+              <p className="text-sm text-muted">
                 {selected.duracionMinutos
                   ? `${selected.duracionMinutos} min`
                   : "Sin duración"}
@@ -1234,14 +1234,14 @@ export default function Recetas() {
               {selected.preparacion && (
                 <div>
                   <h3 className="font-medium text-sm mb-1">Preparación</h3>
-                  <p className="text-sm text-gray-700 whitespace-pre-wrap">
+                  <p className="text-sm text-ink whitespace-pre-wrap">
                     {selected.preparacion}
                   </p>
                 </div>
               )}
               <div>
                 <h3 className="font-medium text-sm mb-1">Ingredientes</h3>
-                <ul className="text-sm text-gray-700 space-y-1">
+                <ul className="text-sm text-ink space-y-1">
                   {(selected.ingredientes || []).map((ing) => (
                     <li key={ing.idRecetaIngrediente}>
                       {ing.cantidad}
@@ -1258,7 +1258,7 @@ export default function Recetas() {
                   setShowDetails(false);
                   abrirEditar(selected);
                 }}
-                className="px-4 py-2 text-sm bg-blue-600 text-white rounded-md"
+                className="px-4 py-2 text-sm bg-brand text-brand-fg rounded-md"
               >
                 Editar
               </button>

@@ -1,4 +1,4 @@
-import { useRef, useState } from "react";
+﻿import { useRef, useState } from "react";
 import {
   analizarExcelPrevio,
   type PreDiagnosticoExcel,
@@ -110,7 +110,7 @@ export default function DiagnosticoExcelModal({
     preDiagnostico?.estado === "ok"
       ? "border-green-200 bg-green-50 text-green-800"
       : preDiagnostico?.estado === "advertencia"
-      ? "border-amber-200 bg-amber-50 text-amber-900"
+      ? "border-amber-200 bg-accent-soft text-amber-900"
       : "border-red-200 bg-red-50 text-red-800";
 
   return (
@@ -122,18 +122,18 @@ export default function DiagnosticoExcelModal({
         }
       }}
     >
-      <div className="flex max-h-[90vh] w-full max-w-2xl flex-col rounded-lg bg-white shadow-xl">
-        <div className="border-b px-5 py-4">
-          <h2 className="text-xl font-bold text-gray-900">{titulo}</h2>
-          <p className="mt-1 text-sm text-gray-500">
+      <div className="flex max-h-[90vh] w-full max-w-2xl flex-col rounded-xl bg-surface shadow-xl">
+        <div className="border-b border-line px-5 py-4">
+          <h2 className="text-xl font-bold text-ink">{titulo}</h2>
+          <p className="mt-1 text-sm text-muted">
             Primero revisamos el archivo. Si se ve bien, recién ahí lo
             procesamos.
           </p>
         </div>
 
         <div className="flex-1 space-y-4 overflow-y-auto px-5 py-4">
-          <div className="rounded-lg border border-gray-200 bg-gray-50 p-4">
-            <label className="mb-2 block text-sm font-medium text-gray-700">
+          <div className="rounded-xl border border-line bg-canvas p-4">
+            <label className="mb-2 block text-sm font-medium text-ink">
               Archivo Excel (.xlsx / .xls)
             </label>
             <div className="flex flex-wrap items-center gap-3">
@@ -141,11 +141,11 @@ export default function DiagnosticoExcelModal({
                 type="button"
                 disabled={cargando || analizando}
                 onClick={() => inputRef.current?.click()}
-                className="rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 disabled:opacity-60"
+                className="rounded-xl bg-brand px-4 py-2 text-sm font-medium text-brand-fg hover:opacity-90 disabled:opacity-60"
               >
                 Elegir archivo
               </button>
-              <span className="max-w-xs truncate text-sm text-gray-600">
+              <span className="max-w-xs truncate text-sm text-muted">
                 {archivo ? archivo.name : "Ningún archivo seleccionado"}
               </span>
               <input
@@ -163,20 +163,20 @@ export default function DiagnosticoExcelModal({
           </div>
 
           {analizando && (
-            <div className="rounded-lg border border-blue-100 bg-blue-50 px-4 py-3 text-sm text-blue-800">
+            <div className="rounded-xl border border-b border-brand/30 bg-brand-soft px-4 py-3 text-sm text-brand">
               Analizando archivo…
             </div>
           )}
 
           {errorLocal && (
-            <div className="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800">
+            <div className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800">
               {errorLocal}
             </div>
           )}
 
           {preDiagnostico && !resultado && (
             <div className="space-y-3">
-              <div className={`rounded-lg border px-4 py-3 ${colorPre}`}>
+              <div className={`rounded-xl border px-4 py-3 ${colorPre}`}>
                 <p className="text-base font-semibold">
                   {preDiagnostico.estado === "ok" && "Diagnóstico previo: OK"}
                   {preDiagnostico.estado === "advertencia" &&
@@ -188,19 +188,19 @@ export default function DiagnosticoExcelModal({
               </div>
 
               <div className="grid grid-cols-3 gap-3">
-                <div className="rounded-lg border bg-white p-3 text-center">
-                  <p className="text-2xl font-bold text-gray-900">
+                <div className="rounded-xl border bg-surface p-3 text-center">
+                  <p className="text-2xl font-bold text-ink">
                     {preDiagnostico.filasTotales}
                   </p>
-                  <p className="text-xs text-gray-500">Filas detectadas</p>
+                  <p className="text-xs text-muted">Filas detectadas</p>
                 </div>
-                <div className="rounded-lg border border-green-100 bg-green-50 p-3 text-center">
+                <div className="rounded-xl border border-green-100 bg-green-50 p-3 text-center">
                   <p className="text-2xl font-bold text-green-700">
                     {preDiagnostico.filasParecenValidas}
                   </p>
                   <p className="text-xs text-green-700">Parecen OK</p>
                 </div>
-                <div className="rounded-lg border border-red-100 bg-red-50 p-3 text-center">
+                <div className="rounded-xl border border-red-100 bg-red-50 p-3 text-center">
                   <p className="text-2xl font-bold text-red-700">
                     {preDiagnostico.filasConProblema}
                   </p>
@@ -208,7 +208,7 @@ export default function DiagnosticoExcelModal({
                 </div>
               </div>
 
-              <div className="rounded-lg border bg-white p-3 text-sm text-gray-700">
+              <div className="rounded-xl border bg-surface p-3 text-sm text-ink">
                 <p>
                   <span className="font-medium">Hoja usada:</span>{" "}
                   {preDiagnostico.hojaUsada}
@@ -244,8 +244,8 @@ export default function DiagnosticoExcelModal({
               </div>
 
               {preDiagnostico.vistaPrevia.length > 0 && (
-                <div className="rounded-lg border">
-                  <div className="border-b bg-gray-50 px-3 py-2 text-sm font-semibold text-gray-800">
+                <div className="rounded-xl border">
+                  <div className="border-b border-line bg-canvas px-3 py-2 text-sm font-semibold text-ink">
                     Vista previa de filas
                   </div>
                   <ul className="max-h-40 divide-y overflow-y-auto text-sm">
@@ -260,7 +260,7 @@ export default function DiagnosticoExcelModal({
                           }`}
                         />
                         <div>
-                          <p className="font-medium text-gray-900">
+                          <p className="font-medium text-ink">
                             Fila {item.fila}: {item.nombre}
                           </p>
                           {item.detalle && (
@@ -274,8 +274,8 @@ export default function DiagnosticoExcelModal({
               )}
 
               {preDiagnostico.problemas.length > 0 && (
-                <div className="rounded-lg border border-amber-100">
-                  <div className="border-b border-amber-100 bg-amber-50 px-3 py-2 text-sm font-semibold text-amber-900">
+                <div className="rounded-xl border border-amber-100">
+                  <div className="border-b border-line border-amber-100 bg-accent-soft px-3 py-2 text-sm font-semibold text-amber-900">
                     Observaciones del análisis (
                     {preDiagnostico.problemas.length})
                   </div>
@@ -283,7 +283,7 @@ export default function DiagnosticoExcelModal({
                     {preDiagnostico.problemas.map((p, i) => (
                       <li
                         key={i}
-                        className="rounded bg-amber-50/70 px-2 py-1 whitespace-pre-wrap"
+                        className="rounded bg-accent-soft/70 px-2 py-1 whitespace-pre-wrap"
                       >
                         {p}
                       </li>
@@ -297,11 +297,11 @@ export default function DiagnosticoExcelModal({
           {resultado && (
             <div className="space-y-3">
               <div
-                className={`rounded-lg border px-4 py-3 ${
+                className={`rounded-xl border px-4 py-3 ${
                   exito
                     ? "border-green-200 bg-green-50"
                     : parcial
-                    ? "border-amber-200 bg-amber-50"
+                    ? "border-amber-200 bg-accent-soft"
                     : "border-red-200 bg-red-50"
                 }`}
               >
@@ -319,22 +319,22 @@ export default function DiagnosticoExcelModal({
                   {fallo && "Resultado final: no se guardó nada"}
                 </p>
                 {resultado.message && (
-                  <p className="mt-1 text-sm text-gray-700">{resultado.message}</p>
+                  <p className="mt-1 text-sm text-ink">{resultado.message}</p>
                 )}
               </div>
 
               <div className="grid grid-cols-3 gap-3">
-                <div className="rounded-lg border bg-white p-3 text-center">
-                  <p className="text-2xl font-bold text-gray-900">{total}</p>
-                  <p className="text-xs text-gray-500">Filas leídas</p>
+                <div className="rounded-xl border bg-surface p-3 text-center">
+                  <p className="text-2xl font-bold text-ink">{total}</p>
+                  <p className="text-xs text-muted">Filas leídas</p>
                 </div>
-                <div className="rounded-lg border border-green-100 bg-green-50 p-3 text-center">
+                <div className="rounded-xl border border-green-100 bg-green-50 p-3 text-center">
                   <p className="text-2xl font-bold text-green-700">
                     {resultado.guardados}
                   </p>
                   <p className="text-xs text-green-700">Bien / guardados</p>
                 </div>
-                <div className="rounded-lg border border-red-100 bg-red-50 p-3 text-center">
+                <div className="rounded-xl border border-red-100 bg-red-50 p-3 text-center">
                   <p className="text-2xl font-bold text-red-700">
                     {resultado.errores}
                   </p>
@@ -343,17 +343,17 @@ export default function DiagnosticoExcelModal({
               </div>
 
               {resultado.itemsOk && resultado.itemsOk.length > 0 && (
-                <div className="rounded-lg border border-green-100">
-                  <div className="border-b border-green-100 bg-green-50 px-3 py-2 text-sm font-semibold text-green-800">
+                <div className="rounded-xl border border-green-100">
+                  <div className="border-b border-line border-green-100 bg-green-50 px-3 py-2 text-sm font-semibold text-green-800">
                     {entidadPlural} guardados correctamente (
                     {resultado.itemsOk.length})
                   </div>
-                  <ul className="max-h-40 list-disc overflow-y-auto px-6 py-2 text-sm text-gray-700">
+                  <ul className="max-h-40 list-disc overflow-y-auto px-6 py-2 text-sm text-ink">
                     {resultado.itemsOk.slice(0, 50).map((nombre, i) => (
                       <li key={`${nombre}-${i}`}>{nombre}</li>
                     ))}
                     {resultado.itemsOk.length > 50 && (
-                      <li className="list-none text-gray-500">
+                      <li className="list-none text-muted">
                         … y {resultado.itemsOk.length - 50} más
                       </li>
                     )}
@@ -363,8 +363,8 @@ export default function DiagnosticoExcelModal({
 
               {resultado.detallesErrores &&
                 resultado.detallesErrores.length > 0 && (
-                  <div className="rounded-lg border border-red-100">
-                    <div className="border-b border-red-100 bg-red-50 px-3 py-2 text-sm font-semibold text-red-800">
+                  <div className="rounded-xl border border-red-100">
+                    <div className="border-b border-line border-red-100 bg-red-50 px-3 py-2 text-sm font-semibold text-red-800">
                       Detalle de errores ({resultado.detallesErrores.length})
                     </div>
                     <ul className="max-h-52 space-y-1 overflow-y-auto px-3 py-2 text-sm text-red-800">
@@ -388,7 +388,7 @@ export default function DiagnosticoExcelModal({
             type="button"
             disabled={cargando || analizando}
             onClick={resetYCerrar}
-            className="rounded-lg border border-gray-300 px-4 py-2 text-sm hover:bg-gray-50 disabled:opacity-60"
+            className="rounded-xl border border-line px-4 py-2 text-sm hover:bg-canvas disabled:opacity-60"
           >
             {resultado ? "Cerrar" : "Cancelar"}
           </button>
@@ -401,7 +401,7 @@ export default function DiagnosticoExcelModal({
               Boolean(preDiagnostico && !preDiagnostico.puedeProcesar)
             }
             onClick={handleProcesar}
-            className="rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 disabled:opacity-60"
+            className="rounded-xl bg-brand px-4 py-2 text-sm font-medium text-brand-fg hover:opacity-90 disabled:opacity-60"
           >
             {cargando
               ? "Procesando..."

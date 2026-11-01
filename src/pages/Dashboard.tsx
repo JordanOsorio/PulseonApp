@@ -5,72 +5,87 @@ export default function Dashboard() {
   const cards = [
     {
       title: "Alimentos",
-      description:
-        "Gestiona la base de datos de alimentos y carga archivos Excel",
-      icon: "🍎",
+      description: "Base nutricional y carga Excel",
       link: "/alimentos",
-      color: "bg-green-500",
+      tone: "from-emerald-500/20 to-teal-500/5",
+      chip: "Nutrición",
     },
     {
       title: "Recetas",
-      description:
-        "Comidas y preparaciones con ingredientes desde Alimentos",
-      icon: "🍝",
+      description: "Comidas por momento del día",
       link: "/recetas",
-      color: "bg-amber-500",
+      tone: "from-lime-500/20 to-emerald-500/5",
+      chip: "Comidas",
     },
     {
       title: "Entrenamientos",
-      description: "Crea y gestiona ejercicios y entrenamientos",
-      icon: "💪",
+      description: "Ejercicios y carga masiva",
       link: "/entrenamientos",
-      color: "bg-blue-500",
+      tone: "from-sky-500/20 to-teal-500/5",
+      chip: "Deporte",
     },
     {
       title: "Categorías",
-      description: "Administra las categorías de ejercicios",
-      icon: "📁",
+      description: "Clasificación de ejercicios",
       link: "/categorias",
-      color: "bg-purple-500",
+      tone: "from-cyan-500/15 to-slate-500/5",
+      chip: "Orden",
     },
     {
       title: "Programas",
-      description: "Visualiza y gestiona programas de entrenamiento",
-      icon: "📋",
+      description: "Planes de entrenamiento",
       link: "/programas",
-      color: "bg-orange-500",
+      tone: "from-teal-500/20 to-sky-500/5",
+      chip: "Planes",
     },
   ];
 
   return (
     <Layout>
-      <div className="px-4 py-6 sm:px-0">
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900">Dashboard</h1>
-          <p className="mt-2 text-gray-600">
-            Bienvenido al panel de administración de Pulseon
-          </p>
-        </div>
+      <div className="space-y-8">
+        <section className="panel-card overflow-hidden">
+          <div className="relative px-6 py-8 sm:px-8">
+            <div
+              aria-hidden
+              className="absolute inset-0 bg-gradient-to-br from-brand/15 via-transparent to-accent/10"
+            />
+            <div className="relative">
+              <p className="text-xs font-semibold uppercase tracking-wider text-brand">
+                Panel Pulseon
+              </p>
+              <h1 className="panel-header mt-1">Dashboard</h1>
+              <p className="panel-sub max-w-xl">
+                Administrá nutrición, recetas y entrenamientos desde un solo
+                lugar. Claridad para cargar datos, sin fricción.
+              </p>
+            </div>
+          </div>
+        </section>
 
-        <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
+        <section className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3">
           {cards.map((card) => (
             <Link
               key={card.title}
               to={card.link}
-              className="bg-white rounded-lg shadow-md hover:shadow-lg transition-shadow p-6 cursor-pointer"
+              className="panel-card group relative overflow-hidden p-5 transition hover:-translate-y-0.5 hover:border-brand/40"
             >
               <div
-                className={`${card.color} w-12 h-12 rounded-lg flex items-center justify-center text-2xl mb-4`}
-              >
-                {card.icon}
+                aria-hidden
+                className={`absolute inset-0 bg-gradient-to-br ${card.tone} opacity-80 transition group-hover:opacity-100`}
+              />
+              <div className="relative">
+                <span className="badge-moment mb-3 inline-flex">{card.chip}</span>
+                <h3 className="font-display text-xl font-semibold text-ink">
+                  {card.title}
+                </h3>
+                <p className="mt-1 text-sm text-muted">{card.description}</p>
+                <span className="mt-4 inline-flex text-sm font-semibold text-brand">
+                  Abrir →
+                </span>
               </div>
-              <h3 className="text-xl font-semibold text-gray-900 mb-2">
-                {card.title}
-              </h3>
-              <p className="text-gray-600 text-sm">{card.description}</p>
             </Link>
           ))}
-        </div>
+        </section>
       </div>
     </Layout>
   );

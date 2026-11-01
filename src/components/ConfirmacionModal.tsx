@@ -25,36 +25,32 @@ export default function ConfirmacionModal({
 
   return (
     <div
-      className="fixed inset-0 z-[60] flex items-center justify-center overflow-y-auto bg-black/50 p-4"
+      className="fixed inset-0 z-[60] flex items-center justify-center overflow-y-auto bg-black/55 p-4 backdrop-blur-sm"
       onClick={(e) => {
         if (e.target === e.currentTarget) onCancelar();
       }}
     >
-      <div className="w-full max-w-md rounded-lg bg-white p-4 shadow-lg sm:p-6">
+      <div className="panel-card w-full max-w-md p-5 sm:p-6">
         <h2
-          className={`mb-4 text-2xl font-bold ${
-            peligroso ? "text-red-600" : "text-gray-900"
+          className={`mb-3 font-display text-xl font-semibold ${
+            peligroso ? "text-red-600 dark:text-red-400" : "text-ink"
           }`}
         >
           {titulo}
         </h2>
-        <div className="mb-6 text-gray-700">{mensaje}</div>
-        <div className="flex space-x-2">
+        <div className="mb-6 text-sm text-muted">{mensaje}</div>
+        <div className="flex gap-2">
           <button
             type="button"
             onClick={onCancelar}
-            className="flex-1 rounded-lg border border-gray-300 px-4 py-2 hover:bg-gray-50"
+            className="btn-secondary flex-1"
           >
             {textoCancelar}
           </button>
           <button
             type="button"
             onClick={onConfirmar}
-            className={`flex-1 rounded-lg px-4 py-2 text-white ${
-              peligroso
-                ? "bg-red-600 hover:bg-red-700"
-                : "bg-blue-600 hover:bg-blue-700"
-            }`}
+            className={`flex-1 ${peligroso ? "btn-danger" : "btn-primary"}`}
           >
             {textoConfirmar}
           </button>

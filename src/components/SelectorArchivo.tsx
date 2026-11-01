@@ -1,4 +1,4 @@
-interface SelectorArchivoProps {
+﻿interface SelectorArchivoProps {
   accept: string;
   archivo: File | null;
   onArchivo: (archivo: File | null) => void;
@@ -17,7 +17,7 @@ export default function SelectorArchivo({
     <div>
       <div className="flex flex-wrap items-center gap-3">
         <label className="cursor-pointer">
-          <span className="inline-flex items-center rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white shadow-sm transition-colors hover:bg-blue-700">
+          <span className="inline-flex items-center rounded-xl bg-brand px-4 py-2 text-sm font-medium text-brand-fg shadow-panel dark:shadow-panel-dark transition-colors hover:opacity-90">
             {texto}
           </span>
           <input
@@ -30,11 +30,11 @@ export default function SelectorArchivo({
             }}
           />
         </label>
-        <span className="max-w-xs truncate text-sm text-gray-500">
+        <span className="max-w-xs truncate text-sm text-muted">
           {archivo ? archivo.name : "Ningún archivo seleccionado"}
         </span>
       </div>
-      <p className="mt-2 text-xs text-gray-500">{ayuda}</p>
+      <p className="mt-2 text-xs text-muted">{ayuda}</p>
     </div>
   );
 }
