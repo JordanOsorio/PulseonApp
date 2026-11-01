@@ -132,18 +132,44 @@ const CONFIG: Record<TipoPlantillaExcel, ConfigPlantilla> = {
   recetas: {
     obligatorias: [
       ["Nombre", "nombre"],
+      ["momento", "Momento"],
+      ["Descripcion", "Descripción", "descripcion"],
+      ["porcionDescripcion", "PorcionDescripcion"],
       ["Ingredientes", "ingredientes", "productos"],
     ],
     recomendadas: [
-      ["Descripcion", "Descripción", "descripcion"],
-      ["duracionMinutos", "duracion", "Duracion"],
-      ["porciones", "porcion"],
+      ["codigo", "Código"],
+      ["preparacion", "Preparacion"],
+      ["duracionMinutos", "duracion"],
+      ["kcal"],
+      ["proteina"],
+      ["carbohidratos"],
+      ["grasaTotal"],
+      ["publicado"],
     ],
     obtenerNombre: (row) => valorCelda(row, ["Nombre", "nombre"]),
     validarFila: (row, numeroFila) => {
       const errores: string[] = [];
       if (!valorCelda(row, ["Nombre", "nombre"])) {
         errores.push(`Fila ${numeroFila}: falta Nombre`);
+      }
+      if (!valorCelda(row, ["Descripcion", "Descripción", "descripcion"])) {
+        errores.push(`Fila ${numeroFila}: falta Descripcion`);
+      }
+      if (!valorCelda(row, ["porcionDescripcion", "PorcionDescripcion"])) {
+        errores.push(`Fila ${numeroFila}: falta porcionDescripcion`);
+      }
+      const momento = valorCelda(row, ["momento", "Momento"]).toLowerCase();
+      if (
+        momento &&
+        !["desayuno", "almuerzo", "once", "cena", "snack"].includes(momento)
+      ) {
+        errores.push(
+          `Fila ${numeroFila}: momento inválido ("${momento}"). Usá desayuno, almuerzo, once, cena o snack`
+        );
+      }
+      if (!momento) {
+        errores.push(`Fila ${numeroFila}: falta momento`);
       }
       const ings = valorCelda(row, [
         "Ingredientes",

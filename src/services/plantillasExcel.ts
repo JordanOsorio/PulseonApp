@@ -422,78 +422,75 @@ export function descargarPlantillaEjercicios(listas?: ListasPlantillaEjercicios)
 
 export function descargarPlantillaRecetas() {
   const workbook = XLSX.utils.book_new();
+  const momentos = ["desayuno", "almuerzo", "once", "cena", "snack"];
 
   const encabezados = [
+    "codigo",
     "Nombre",
+    "momento",
     "Descripcion",
+    "porcionDescripcion",
+    "preparacion",
     "duracionMinutos",
     "porciones",
+    "kcal",
+    "proteina",
+    "carbohidratos",
+    "grasaTotal",
+    "grasaSaturada",
+    "azucares",
+    "fibra",
+    "sodio",
+    "publicado",
     "Ingredientes",
   ];
   const ejemplo = [
+    "almuerzo-tallarines-salsa",
     "Tallarines con salsa",
-    "Clásico casero. Herví la pasta y mezclá con la salsa.",
+    "almuerzo",
+    "Clásico casero de pasta con salsa de tomate",
+    "1 plato",
+    "1. Herví la pasta\n2. Calentá la salsa\n3. Mezclá y serví",
     "25",
-    "2",
+    "1",
+    "450",
+    "15",
+    "60",
+    "12",
+    "3",
+    "8",
+    "4",
+    "600",
+    "true",
     "Tallarines|200|g|Harinas + Salsa de tomate|150|g|Salsas",
   ];
 
   const hoja = XLSX.utils.aoa_to_sheet([encabezados, ejemplo]);
-  hoja["!cols"] = [
-    { wch: 28 },
-    { wch: 50 },
-    { wch: 16 },
-    { wch: 12 },
-    { wch: 70 },
-  ];
+  hoja["!cols"] = encabezados.map((h) => ({
+    wch: Math.max(12, Math.min(36, h.length + 4)),
+  }));
   XLSX.utils.book_append_sheet(workbook, hoja, "Recetas");
 
   const opciones = [
-    ["OPCIONES Y FORMATO"],
+    ["OPCIONES FIJAS — valores exactos"],
     [],
-    ["Campo", "Detalle"],
-    ["Nombre", "Obligatorio"],
-    ["Descripcion", "Opcional"],
-    ["duracionMinutos", "Opcional (minutos)"],
-    ["porciones", "Opcional (default 1)"],
+    ["Campo", "Valor"],
+    ...momentos.map((m) => ["momento", m]),
+    [],
+    ["publicado", "true | false"],
     [
       "Ingredientes",
-      "nombre|cantidad|unidad|categoria — varios separados por + o ;",
-    ],
-    [
-      "Ejemplo",
-      "Tallarines|200|g|Harinas + Salsa de tomate|150|g|Salsas",
-    ],
-    [
-      "Nota",
-      "Si el alimento existe se reutiliza; si no, se crea (categoría opcional).",
-    ],
-  ];
-  const hojaOp = XLSX.utils.aoa_to_sheet(opciones);
-  hojaOp["!cols"] = [{ wch: 22 }, { wch: 80 }];
-  XLSX.utils.book_append_sheet(workbook, hojaOp, "Opciones");
-
-  const instrucciones = [
-    ["Campo", "Obligatorio", "Cómo completarlo"],
-    ["Nombre", "Sí", "Nombre de la comida/receta"],
-    ["Descripcion", "No", "Detalle de preparación"],
-    ["duracionMinutos", "No", "Minutos totales"],
-    ["porciones", "No", "Cuántas porciones rinde"],
-    [
-      "Ingredientes",
-      "Sí",
       "nombre|cantidad|unidad|categoria separados por +",
     ],
-    [],
     [
-      "Consejo",
-      "",
-      "No cambies los nombres de columnas. Borrá o reemplazá la fila de ejemplo.",
+      "Nutrientes",
+      "De ESA porción. sodio=mg; resto=g; kcal=kcal. La app no recalcula.",
     ],
+    ["codigo", "Único. Si vacío se genera momento-nombre"],
   ];
-  const hojaIns = XLSX.utils.aoa_to_sheet(instrucciones);
-  hojaIns["!cols"] = [{ wch: 18 }, { wch: 12 }, { wch: 70 }];
-  XLSX.utils.book_append_sheet(workbook, hojaIns, "Instrucciones");
+  const hojaOp = XLSX.utils.aoa_to_sheet(opciones);
+  hojaOp["!cols"] = [{ wch: 18 }, { wch: 70 }];
+  XLSX.utils.book_append_sheet(workbook, hojaOp, "Opciones");
 
   descargarWorkbook(workbook, "plantilla-recetas-pulseon.xlsx");
 }

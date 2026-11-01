@@ -31,12 +31,33 @@ type AlimentoOpt = {
   categoria?: { nombre: string };
 };
 
+const MOMENTOS = [
+  "desayuno",
+  "almuerzo",
+  "once",
+  "cena",
+  "snack",
+] as const;
+
 type Receta = {
   idReceta: string;
+  codigo?: string;
   nombre: string;
+  momento?: string;
   descripcion?: string | null;
+  porcionDescripcion?: string | null;
+  preparacion?: string | null;
   duracionMinutos?: number | null;
   porciones?: number | null;
+  kcal?: number;
+  proteina?: number;
+  carbohidratos?: number;
+  grasaTotal?: number;
+  grasaSaturada?: number;
+  azucares?: number;
+  fibra?: number;
+  sodio?: number;
+  publicado?: boolean;
   imagenStorageUrl?: string | null;
   ingredientes?: Array<{
     idRecetaIngrediente: string;
@@ -60,10 +81,23 @@ const nuevoIngrediente = (): IngredienteForm => ({
 });
 
 const formularioVacio = () => ({
+  codigo: "",
   nombre: "",
+  momento: "almuerzo",
   descripcion: "",
+  porcionDescripcion: "",
+  preparacion: "",
   duracionMinutos: "" as NumField,
   porciones: 1 as NumField,
+  kcal: "" as NumField,
+  proteina: "" as NumField,
+  carbohidratos: "" as NumField,
+  grasaTotal: "" as NumField,
+  grasaSaturada: "" as NumField,
+  azucares: "" as NumField,
+  fibra: "" as NumField,
+  sodio: "" as NumField,
+  publicado: true,
   ingredientes: [nuevoIngrediente()] as IngredienteForm[],
 });
 
@@ -80,6 +114,7 @@ export default function Recetas() {
   const [loading, setLoading] = useState(false);
   const [guardando, setGuardando] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
+  const [filtroMomento, setFiltroMomento] = useState("");
   const [message, setMessage] = useState<{
     type: "success" | "error";
     text: string;
@@ -115,6 +150,7 @@ export default function Recetas() {
     try {
       const params: any = { limit: 100 };
       if (searchTerm.trim()) params.nombre = searchTerm.trim();
+      if (filtroMomento) params.momento = filtroMomento;
       const { data } = await api.get("/recetas", { params });
       setRecetas(data.recetas || []);
       setTotal(data.total || 0);
@@ -168,7 +204,7 @@ export default function Recetas() {
   useEffect(() => {
     const t = setTimeout(() => fetchRecetas({ silencioso: true }), 300);
     return () => clearTimeout(t);
-  }, [searchTerm]);
+  }, [searchTerm, filtroMomento]);
 
   useEffect(() => {
     if (!imagenArchivo) {
@@ -192,10 +228,23 @@ export default function Recetas() {
   const abrirEditar = (receta: Receta) => {
     setEditing(receta);
     setFormData({
+      codigo: receta.codigo || "",
       nombre: receta.nombre || "",
+      momento: receta.momento || "almuerzo",
       descripcion: receta.descripcion || "",
+      porcionDescripcion: receta.porcionDescripcion || "",
+      preparacion: receta.preparacion || "",
       duracionMinutos: receta.duracionMinutos ?? "",
       porciones: receta.porciones ?? 1,
+      kcal: receta.kcal ?? "",
+      proteina: receta.proteina ?? "",
+      carbohidratos: receta.carbohidratos ?? "",
+      grasaTotal: receta.grasaTotal ?? "",
+      grasaSaturada: receta.grasaSaturada ?? "",
+      azucares: receta.azucares ?? "",
+      fibra: receta.fibra ?? "",
+      sodio: receta.sodio ?? "",
+      publicado: receta.publicado !== false,
       ingredientes:
         receta.ingredientes && receta.ingredientes.length > 0
           ? receta.ingredientes.map((ing) => ({
@@ -252,6 +301,17 @@ export default function Recetas() {
       setMessage({ type: "error", text: "El nombre es obligatorio" });
       return;
     }
+    if (!formData.descripcion.trim()) {
+      setMessage({ type: "error", text: "La descripción es obligatoria" });
+      return;
+    }
+    if (!formData.porcionDescripcion.trim()) {
+      setMessage({
+        type: "error",
+        text: "La descripción de porción es obligatoria (ej: 1 plato)",
+      });
+      return;
+    }
     for (let i = 0; i < formData.ingredientes.length; i++) {
       const ing = formData.ingredientes[i];
       if (!numOrUndef(ing.cantidad) || Number(ing.cantidad) <= 0) {
@@ -280,10 +340,23 @@ export default function Recetas() {
     setGuardando(true);
     try {
       const body = {
+        codigo: formData.codigo.trim() || undefined,
         nombre: formData.nombre.trim(),
-        descripcion: formData.descripcion.trim() || undefined,
+        momento: formData.momento,
+        descripcion: formData.descripcion.trim(),
+        porcionDescripcion: formData.porcionDescripcion.trim(),
+        preparacion: formData.preparacion.trim() || undefined,
         duracionMinutos: numOrUndef(formData.duracionMinutos) ?? null,
         porciones: numOrUndef(formData.porciones) ?? 1,
+        kcal: numOrUndef(formData.kcal) ?? 0,
+        proteina: numOrUndef(formData.proteina) ?? 0,
+        carbohidratos: numOrUndef(formData.carbohidratos) ?? 0,
+        grasaTotal: numOrUndef(formData.grasaTotal) ?? 0,
+        grasaSaturada: numOrUndef(formData.grasaSaturada) ?? 0,
+        azucares: numOrUndef(formData.azucares) ?? 0,
+        fibra: numOrUndef(formData.fibra) ?? 0,
+        sodio: numOrUndef(formData.sodio) ?? 0,
+        publicado: formData.publicado,
         ingredientes: armarPayloadIngredientes(),
         ...(editing && quitarImagen ? { imagenStorageUrl: null } : {}),
       };
@@ -422,8 +495,8 @@ export default function Recetas() {
         <div className="bg-white shadow rounded-lg p-6 mb-6">
           <h2 className="text-xl font-semibold mb-2">Cargar Archivo Excel</h2>
           <p className="mb-4 text-sm text-gray-600">
-            Descargá la plantilla (hojas Recetas, Opciones e Instrucciones),
-            completá y subí. Formato de ingredientes:{" "}
+            Descargá la plantilla (Recetas + Opciones). Incluye momento,
+            nutrientes de la porción y código. Ingredientes:{" "}
             <code className="text-xs bg-gray-100 px-1 rounded">
               nombre|cantidad|unidad|categoria
             </code>{" "}
@@ -468,13 +541,27 @@ export default function Recetas() {
 
         <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
           <h2 className="text-xl font-semibold">Lista de Recetas ({total})</h2>
-          <input
-            type="search"
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            placeholder="Buscar por nombre..."
-            className="w-full sm:w-80 border border-gray-300 rounded-md px-3 py-2 text-sm"
-          />
+          <div className="flex flex-wrap gap-2">
+            <select
+              value={filtroMomento}
+              onChange={(e) => setFiltroMomento(e.target.value)}
+              className="border border-gray-300 rounded-md px-3 py-2 text-sm bg-white"
+            >
+              <option value="">Todos los momentos</option>
+              {MOMENTOS.map((m) => (
+                <option key={m} value={m}>
+                  {m}
+                </option>
+              ))}
+            </select>
+            <input
+              type="search"
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              placeholder="Buscar por nombre..."
+              className="w-full sm:w-64 border border-gray-300 rounded-md px-3 py-2 text-sm"
+            />
+          </div>
         </div>
 
         {loading ? (
@@ -502,20 +589,30 @@ export default function Recetas() {
                   </div>
                 )}
                 <div className="p-4">
-                  <h3 className="font-semibold text-gray-900">{receta.nombre}</h3>
+                  <div className="flex items-start justify-between gap-2">
+                    <h3 className="font-semibold text-gray-900">{receta.nombre}</h3>
+                    <span className="shrink-0 text-xs px-2 py-0.5 rounded-full bg-amber-100 text-amber-800 capitalize">
+                      {receta.momento || "—"}
+                    </span>
+                  </div>
                   {receta.descripcion && (
                     <p className="text-sm text-gray-600 mt-1 line-clamp-2">
                       {receta.descripcion}
                     </p>
                   )}
-                  <p className="text-xs text-gray-500 mt-2">
+                  <p className="text-sm font-medium text-gray-800 mt-2">
+                    {Number(receta.kcal ?? 0).toFixed(0)} kcal
+                    {receta.porcionDescripcion
+                      ? ` · ${receta.porcionDescripcion}`
+                      : ""}
+                  </p>
+                  <p className="text-xs text-gray-500 mt-1">
                     {receta.duracionMinutos
                       ? `${receta.duracionMinutos} min`
                       : "Sin duración"}
                     {" · "}
-                    {receta.porciones || 1} porción(es)
-                    {" · "}
                     {receta.ingredientes?.length || 0} ingrediente(s)
+                    {receta.publicado === false ? " · borrador" : ""}
                   </p>
                   <ul className="mt-2 text-xs text-gray-600 space-y-0.5 max-h-20 overflow-auto">
                     {(receta.ingredientes || []).slice(0, 5).map((ing) => (
@@ -622,32 +719,99 @@ export default function Recetas() {
             </div>
 
             <div className="px-5 py-4 space-y-4 max-h-[75vh] overflow-y-auto">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Nombre *
-                </label>
-                <input
-                  value={formData.nombre}
-                  onChange={(e) =>
-                    setFormData((p) => ({ ...p, nombre: e.target.value }))
-                  }
-                  className="w-full border rounded-md px-3 py-2 text-sm"
-                  placeholder="Tallarines con salsa"
-                />
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Nombre *
+                  </label>
+                  <input
+                    value={formData.nombre}
+                    onChange={(e) =>
+                      setFormData((p) => ({ ...p, nombre: e.target.value }))
+                    }
+                    className="w-full border rounded-md px-3 py-2 text-sm"
+                    placeholder="Tallarines con salsa"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Momento *
+                  </label>
+                  <select
+                    value={formData.momento}
+                    onChange={(e) =>
+                      setFormData((p) => ({ ...p, momento: e.target.value }))
+                    }
+                    className="w-full border rounded-md px-3 py-2 text-sm bg-white"
+                  >
+                    {MOMENTOS.map((m) => (
+                      <option key={m} value={m}>
+                        {m}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Código
+                  </label>
+                  <input
+                    value={formData.codigo}
+                    onChange={(e) =>
+                      setFormData((p) => ({ ...p, codigo: e.target.value }))
+                    }
+                    className="w-full border rounded-md px-3 py-2 text-sm"
+                    placeholder="Vacío = se genera solo (almuerzo-tallarines...)"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Porción (descripción) *
+                  </label>
+                  <input
+                    value={formData.porcionDescripcion}
+                    onChange={(e) =>
+                      setFormData((p) => ({
+                        ...p,
+                        porcionDescripcion: e.target.value,
+                      }))
+                    }
+                    className="w-full border rounded-md px-3 py-2 text-sm"
+                    placeholder="1 plato, 1 bowl, 2 huevos..."
+                  />
+                </div>
               </div>
 
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Descripción
+                  Descripción *
                 </label>
                 <textarea
                   value={formData.descripcion}
                   onChange={(e) =>
                     setFormData((p) => ({ ...p, descripcion: e.target.value }))
                   }
-                  rows={3}
+                  rows={2}
                   className="w-full border rounded-md px-3 py-2 text-sm"
-                  placeholder="Cómo se prepara, tips, etc."
+                  placeholder="Qué es el plato (una línea)"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Preparación
+                </label>
+                <textarea
+                  value={formData.preparacion}
+                  onChange={(e) =>
+                    setFormData((p) => ({ ...p, preparacion: e.target.value }))
+                  }
+                  rows={4}
+                  className="w-full border rounded-md px-3 py-2 text-sm"
+                  placeholder={"1. Paso uno\n2. Paso dos"}
                 />
               </div>
 
@@ -672,7 +836,7 @@ export default function Recetas() {
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Porciones
+                    Porciones (rinde)
                   </label>
                   <input
                     type="number"
@@ -689,6 +853,66 @@ export default function Recetas() {
                   />
                 </div>
               </div>
+
+              <div>
+                <h3 className="font-medium text-gray-900 mb-1">
+                  Nutrientes de esa porción
+                </h3>
+                <p className="text-xs text-gray-500 mb-2">
+                  Valores ya calculados para la porción (la app no recalcula).
+                  Sodio en mg; el resto en g.
+                </p>
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+                  {(
+                    [
+                      ["kcal", "kcal"],
+                      ["proteina", "Proteína (g)"],
+                      ["carbohidratos", "Carbos (g)"],
+                      ["grasaTotal", "Grasa total (g)"],
+                      ["grasaSaturada", "Grasa sat. (g)"],
+                      ["azucares", "Azúcares (g)"],
+                      ["fibra", "Fibra (g)"],
+                      ["sodio", "Sodio (mg)"],
+                    ] as const
+                  ).map(([key, label]) => (
+                    <div key={key}>
+                      <label className="block text-xs text-gray-600 mb-0.5">
+                        {label}
+                      </label>
+                      <input
+                        type="number"
+                        min={0}
+                        step="any"
+                        value={formData[key]}
+                        onChange={(e) =>
+                          setFormData((p) => ({
+                            ...p,
+                            [key]:
+                              e.target.value === ""
+                                ? ""
+                                : Number(e.target.value),
+                          }))
+                        }
+                        className="w-full border rounded-md px-2 py-1.5 text-sm"
+                      />
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              <label className="inline-flex items-center gap-2 text-sm">
+                <input
+                  type="checkbox"
+                  checked={formData.publicado}
+                  onChange={(e) =>
+                    setFormData((p) => ({
+                      ...p,
+                      publicado: e.target.checked,
+                    }))
+                  }
+                />
+                Publicado (visible en la app)
+              </label>
 
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -979,18 +1203,42 @@ export default function Recetas() {
                   className="w-full h-48 object-cover rounded"
                 />
               )}
+              <p className="text-xs text-amber-800 capitalize">
+                {selected.momento || "—"}
+                {selected.codigo ? ` · ${selected.codigo}` : ""}
+              </p>
               {selected.descripcion && (
                 <p className="text-sm text-gray-700 whitespace-pre-wrap">
                   {selected.descripcion}
                 </p>
               )}
+              <p className="text-sm font-medium text-gray-900">
+                {Number(selected.kcal ?? 0).toFixed(0)} kcal
+                {selected.porcionDescripcion
+                  ? ` · ${selected.porcionDescripcion}`
+                  : ""}
+              </p>
+              <p className="text-xs text-gray-500">
+                P {Number(selected.proteina ?? 0).toFixed(1)}g · C{" "}
+                {Number(selected.carbohidratos ?? 0).toFixed(1)}g · G{" "}
+                {Number(selected.grasaTotal ?? 0).toFixed(1)}g · Na{" "}
+                {Number(selected.sodio ?? 0).toFixed(0)}mg
+              </p>
               <p className="text-sm text-gray-500">
                 {selected.duracionMinutos
                   ? `${selected.duracionMinutos} min`
                   : "Sin duración"}
                 {" · "}
-                {selected.porciones || 1} porción(es)
+                {selected.publicado === false ? "Borrador" : "Publicado"}
               </p>
+              {selected.preparacion && (
+                <div>
+                  <h3 className="font-medium text-sm mb-1">Preparación</h3>
+                  <p className="text-sm text-gray-700 whitespace-pre-wrap">
+                    {selected.preparacion}
+                  </p>
+                </div>
+              )}
               <div>
                 <h3 className="font-medium text-sm mb-1">Ingredientes</h3>
                 <ul className="text-sm text-gray-700 space-y-1">
