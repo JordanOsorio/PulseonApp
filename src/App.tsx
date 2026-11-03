@@ -9,6 +9,7 @@ import Entrenamientos from "./pages/Entrenamientos";
 import Login from "./pages/Login";
 import Programas from "./pages/Programas";
 import Recetas from "./pages/Recetas";
+import ResetPassword from "./pages/ResetPassword";
 
 function ProtectedRoute({ children }: { children: ReactNode }) {
   const { isAuthenticated } = useAuth();
@@ -19,6 +20,7 @@ function AppRoutes() {
   return (
     <Routes>
       <Route path="/login" element={<Login />} />
+      <Route path="/reset-password" element={<ResetPassword />} />
       <Route
         path="/"
         element={
