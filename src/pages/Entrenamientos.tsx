@@ -253,7 +253,7 @@ export default function Entrenamientos() {
         message:
           data.guardados > 0
             ? `Se guardaron ${data.guardados} ejercicio(s).`
-            : data.message || "Revisá los errores y volvé a intentar.",
+            : data.message || "Revisa los errores y vuelve a intentar.",
       });
       if (data.guardados > 0) {
         fetchEjercicios({ silencioso: true });
@@ -461,8 +461,8 @@ export default function Entrenamientos() {
         <div className="panel-card p-6 mb-6">
           <h2 className="text-xl font-semibold mb-4">Cargar Archivo Excel</h2>
           <p className="mb-4 text-sm text-muted">
-            Descargá la plantilla, completá los ejercicios (ejemplo + hojas Instrucciones y Opciones con valores permitidos)
-            y después subí el archivo. No cambies los nombres de las columnas.
+            Descarga la plantilla, completa los ejercicios (ejemplo + hojas Instrucciones y Opciones con valores permitidos)
+            y después sube el archivo. No cambies los nombres de las columnas.
           </p>
           <div className="flex flex-wrap items-center gap-3">
             <button

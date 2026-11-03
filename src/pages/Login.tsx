@@ -43,7 +43,7 @@ export default function Login() {
       if (modo === "register") {
         await register(email.trim(), password, nombre);
         setInfo(
-          "Cuenta creada. Revisá tu correo (bienvenida) e iniciá sesión."
+          "Cuenta creada. Revisa tu correo (bienvenida) e inicia sesión."
         );
         setModo("login");
         setPassword("");
@@ -89,9 +89,9 @@ export default function Login() {
             Pulseon
           </h1>
           <p className="panel-sub">
-            {modo === "login" && "Iniciá sesión con tu cuenta"}
-            {modo === "register" && "Creá tu cuenta"}
-            {modo === "forgot" && "Recuperá tu contraseña"}
+            {modo === "login" && "Inicia sesión con tu cuenta"}
+            {modo === "register" && "Crea tu cuenta"}
+            {modo === "forgot" && "Recupera tu contraseña"}
           </p>
         </div>
 
@@ -180,7 +180,7 @@ export default function Login() {
             disabled={loading}
           >
             {loading
-              ? "Esperá…"
+              ? "Espera…"
               : modo === "login"
                 ? "Iniciar sesión"
                 : modo === "register"
@@ -200,7 +200,7 @@ export default function Login() {
                 ¿Olvidaste tu contraseña?
               </button>
               <p>
-                ¿No tenés cuenta?{" "}
+                ¿No tienes cuenta?{" "}
                 <button
                   type="button"
                   className="font-medium text-brand hover:underline"
@@ -213,7 +213,7 @@ export default function Login() {
           )}
           {modo === "register" && (
             <p>
-              ¿Ya tenés cuenta?{" "}
+              ¿Ya tienes cuenta?{" "}
               <button
                 type="button"
                 className="font-medium text-brand hover:underline"

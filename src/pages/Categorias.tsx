@@ -147,7 +147,7 @@ export default function Categorias() {
           data.message ||
           (data.guardados > 0
             ? `Se guardaron ${data.guardados} ${getItemLabel()}(s).`
-            : "Revisá los errores y volvé a intentar."),
+            : "Revisa los errores y vuelve a intentar."),
       });
       if (data.guardados > 0) {
         refreshActiveTab();

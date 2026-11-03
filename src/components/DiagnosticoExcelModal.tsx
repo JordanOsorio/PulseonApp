@@ -73,7 +73,7 @@ export default function DiagnosticoExcelModal({
 
   const handleProcesar = async () => {
     if (!archivo) {
-      setErrorLocal("Seleccioná un archivo Excel primero");
+      setErrorLocal("Selecciona un archivo Excel primero");
       return;
     }
     if (preDiagnostico && !preDiagnostico.puedeProcesar) {

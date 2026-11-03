@@ -85,7 +85,7 @@ const CONFIG: Record<TipoPlantillaExcel, ConfigPlantilla> = {
         )
       ) {
         errores.push(
-          `Fila ${numeroFila}: nivelDificultad inválido ("${nivel}"). Usá preparatorio, intermedio, avanzado o sin_nivel`
+          `Fila ${numeroFila}: nivelDificultad inválido ("${nivel}"). Usa preparatorio, intermedio, avanzado o sin_nivel`
         );
       }
       const tipo = valorCelda(row, ["tipoEjercicio", "tipo", "Tipo"]);
@@ -96,7 +96,7 @@ const CONFIG: Record<TipoPlantillaExcel, ConfigPlantilla> = {
         )
       ) {
         errores.push(
-          `Fila ${numeroFila}: tipoEjercicio inválido ("${tipo}"). Usá dinamicos, basicos, complementarios o sin_tipo`
+          `Fila ${numeroFila}: tipoEjercicio inválido ("${tipo}"). Usa dinamicos, basicos, complementarios o sin_tipo`
         );
       }
       return errores;
@@ -165,7 +165,7 @@ const CONFIG: Record<TipoPlantillaExcel, ConfigPlantilla> = {
         !["desayuno", "almuerzo", "once", "cena", "snack"].includes(momento)
       ) {
         errores.push(
-          `Fila ${numeroFila}: momento inválido ("${momento}"). Usá desayuno, almuerzo, once, cena o snack`
+          `Fila ${numeroFila}: momento inválido ("${momento}"). Usa desayuno, almuerzo, once, cena o snack`
         );
       }
       if (!momento) {
@@ -361,7 +361,7 @@ export async function analizarExcelPrevio(
     primerNombre === "tallarines con salsa"
   ) {
     problemas.unshift(
-      "La primera fila parece ser el ejemplo de la plantilla. Reemplazala o borrala antes de subir si no querés cargarla."
+      "La primera fila parece ser el ejemplo de la plantilla. Reemplázala o bórrala antes de subir si no quieres cargarla."
     );
   }
 
@@ -380,7 +380,7 @@ export async function analizarExcelPrevio(
     resumen =
       filasParecenValidas > 0
         ? "Se puede procesar, pero hay filas o columnas a revisar."
-        : "Ninguna fila parece válida. Revisá el archivo.";
+        : "Ninguna fila parece válida. Revisa el archivo.";
     if (filasParecenValidas === 0) {
       puedeProcesar = false;
       estado = "error";

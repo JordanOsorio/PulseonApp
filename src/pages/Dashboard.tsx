@@ -55,7 +55,7 @@ export default function Dashboard() {
               </p>
               <h1 className="panel-header mt-1">Dashboard</h1>
               <p className="panel-sub max-w-xl">
-                Administrá nutrición, recetas y entrenamientos desde un solo
+                Administra nutrición, recetas y entrenamientos desde un solo
                 lugar. Claridad para cargar datos, sin fricción.
               </p>
             </div>

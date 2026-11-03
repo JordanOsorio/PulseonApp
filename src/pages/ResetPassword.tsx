@@ -72,7 +72,7 @@ export default function ResetPassword() {
           <h1 className="font-display text-3xl font-bold tracking-tight text-ink">
             Nueva contraseña
           </h1>
-          <p className="panel-sub">Elegí una contraseña nueva para Pulseon</p>
+          <p className="panel-sub">Elige una contraseña nueva para Pulseon</p>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-5">
@@ -90,7 +90,7 @@ export default function ResetPassword() {
                 value={token}
                 onChange={(e) => setToken(e.target.value)}
                 className="input-field"
-                placeholder="Pegá el token del correo"
+                placeholder="Pega el token del correo"
                 required
               />
             </div>

@@ -49,19 +49,19 @@ function hojaOpcionesEjercicios(listas?: ListasPlantillaEjercicios) {
   );
 
   const filas: (string | number)[][] = [
-    ["OPCIONES FIJAS — copiá el valor exacto (minúsculas) en la hoja Ejercicios"],
+    ["OPCIONES FIJAS — copia el valor exacto (minúsculas) en la hoja Ejercicios"],
     [],
     ["Campo", "Valor permitido", "Cómo usarlo"],
     [
       "nivelDificultad",
       "preparatorio",
-      "Uno solo. Si dejás vacío = sin_nivel",
+      "Uno solo. Si dejas vacío = sin_nivel",
     ],
     ["nivelDificultad", "intermedio", ""],
     ["nivelDificultad", "avanzado", ""],
     ["nivelDificultad", "sin_nivel", ""],
     [],
-    ["tipoEjercicio", "dinamicos", "Uno solo. Si dejás vacío = sin_tipo"],
+    ["tipoEjercicio", "dinamicos", "Uno solo. Si dejas vacío = sin_tipo"],
     ["tipoEjercicio", "basicos", ""],
     ["tipoEjercicio", "complementarios", ""],
     ["tipoEjercicio", "sin_tipo", ""],
@@ -87,7 +87,7 @@ function hojaOpcionesEjercicios(listas?: ListasPlantillaEjercicios) {
     ],
     [],
     [
-      "LISTAS ACTUALES EN LA BASE (podés usar estos nombres o crear nuevos)",
+      "LISTAS ACTUALES EN LA BASE (puedes usar estos nombres o crear nuevos)",
     ],
     [],
     ["Categorias existentes", "Musculos existentes", "Implementos / equipos existentes"],
@@ -256,7 +256,7 @@ export function descargarPlantillaAlimentos() {
     [
       "Consejo",
       "",
-      "No cambies los nombres de las columnas. Borrá o reemplazá la fila de ejemplo. La imagen se carga después desde Editar en la web.",
+      "No cambies los nombres de las columnas. Borra o reemplaza la fila de ejemplo. La imagen se carga después desde Editar en la web.",
       "",
     ],
   ];
@@ -294,7 +294,7 @@ export function descargarPlantillaEjercicios(listas?: ListasPlantillaEjercicios)
 
   const ejemplo = [
     "Press de banca con barra",
-    "Ejercicio de empuje para pecho. Acostate en el banco y bajá la barra hasta el pecho.",
+    "Ejercicio de empuje para pecho. Acuéstate en el banco y baja la barra hasta el pecho.",
     "https://www.youtube.com/watch?v=ejemplo",
     "Pecho",
     "Pecho + Triceps + Hombros",
@@ -340,7 +340,7 @@ export function descargarPlantillaEjercicios(listas?: ListasPlantillaEjercicios)
       "Descripcion",
       "No",
       "Texto libre. Junto con Nombre identifica duplicados.",
-      "Acostate en el banco...",
+      "Acuéstate en el banco...",
     ],
     [
       "urlVideo",
@@ -369,7 +369,7 @@ export function descargarPlantillaEjercicios(listas?: ListasPlantillaEjercicios)
     [
       "Imagen",
       "No",
-      "URL de imagen. Para subir archivo usá Editar en la web.",
+      "URL de imagen. Para subir archivo usa Editar en la web.",
       "https://ejemplo.com/foto.jpg",
     ],
     [
@@ -390,9 +390,9 @@ export function descargarPlantillaEjercicios(listas?: ListasPlantillaEjercicios)
       "SOLO estos, separados por coma (ver hoja Opciones).",
       `${TIPOS_MEDICION.join(" | ")} → ej: repeticion,peso`,
     ],
-    ["repeticiones", "No", "Número entero si usás repeticion.", "12"],
-    ["tiempoSegundos", "No", "Segundos si usás tiempo.", "45"],
-    ["pesoKg", "No", "Número si usás peso.", "60 o 40.5"],
+    ["repeticiones", "No", "Número entero si usas repeticion.", "12"],
+    ["tiempoSegundos", "No", "Segundos si usas tiempo.", "45"],
+    ["pesoKg", "No", "Número si usas peso.", "60 o 40.5"],
     [],
     [
       "Importante",
@@ -403,7 +403,7 @@ export function descargarPlantillaEjercicios(listas?: ListasPlantillaEjercicios)
     [
       "Consejo",
       "",
-      "No cambies los nombres de las columnas. Borrá o reemplazá la fila de ejemplo. Si hay un error en cualquier fila, no se guarda nada.",
+      "No cambies los nombres de las columnas. Borra o reemplaza la fila de ejemplo. Si hay un error en cualquier fila, no se guarda nada.",
       "",
     ],
   ];
@@ -450,7 +450,7 @@ export function descargarPlantillaRecetas() {
     "almuerzo",
     "Clásico casero de pasta con salsa de tomate",
     "1 plato",
-    "1. Herví la pasta\n2. Calentá la salsa\n3. Mezclá y serví",
+    "1. Hierve la pasta\n2. Calienta la salsa\n3. Mezcla y sirve",
     "25",
     "1",
     "450",

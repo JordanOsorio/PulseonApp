@@ -324,14 +324,14 @@ export default function Recetas() {
       if (ing.modo === "existente" && !ing.idAlimento) {
         setMessage({
           type: "error",
-          text: `Ingrediente #${i + 1}: elegí un alimento o creá uno nuevo`,
+          text: `Ingrediente #${i + 1}: elige un alimento o crea uno nuevo`,
         });
         return;
       }
       if (ing.modo === "nuevo" && !ing.nombreNuevo.trim()) {
         setMessage({
           type: "error",
-          text: `Ingrediente #${i + 1}: escribí el nombre del alimento nuevo`,
+          text: `Ingrediente #${i + 1}: escribe el nombre del alimento nuevo`,
         });
         return;
       }
@@ -480,7 +480,7 @@ export default function Recetas() {
           <div>
             <h1 className="panel-header">Recetas / Comidas</h1>
             <p className="mt-1 text-muted">
-              Creá, editá y eliminá preparaciones. Los ingredientes son
+              Crea, edita y elimina preparaciones. Los ingredientes son
               Alimentos (existentes o nuevos al vuelo).
             </p>
           </div>
@@ -495,7 +495,7 @@ export default function Recetas() {
         <div className="panel-card p-6 mb-6">
           <h2 className="text-xl font-semibold mb-2">Cargar Archivo Excel</h2>
           <p className="mb-4 text-sm text-muted">
-            Descargá la plantilla (Recetas + Opciones). Incluye momento,
+            Descarga la plantilla (Recetas + Opciones). Incluye momento,
             nutrientes de la porción y código. Ingredientes:{" "}
             <code className="text-xs bg-surface-2 px-1 rounded">
               nombre|cantidad|unidad|categoria
@@ -568,7 +568,7 @@ export default function Recetas() {
           <p className="text-muted">Cargando...</p>
         ) : recetas.length === 0 ? (
           <div className="bg-surface border rounded-xl p-8 text-center text-muted">
-            Todavía no hay recetas. Creá una como “Tallarines con salsa”.
+            Todavía no hay recetas. Crea una como “Tallarines con salsa”.
           </div>
         ) : (
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
@@ -978,7 +978,7 @@ export default function Recetas() {
                   className="w-full border rounded-md px-3 py-1.5 text-sm mb-1"
                 />
                 <p className="text-xs text-muted mb-3">
-                  Solo acota el desplegable “Elegí un alimento…”. No filtra las
+                  Solo acota el desplegable “Elige un alimento…”. No filtra las
                   recetas de la lista.
                 </p>
 
@@ -1049,7 +1049,7 @@ export default function Recetas() {
                           }}
                           className="w-full border rounded-md px-2 py-1.5 text-sm bg-surface"
                         >
-                          <option value="">Elegí un alimento...</option>
+                          <option value="">Elige un alimento...</option>
                           {alimentosFiltrados.map((a) => (
                             <option key={a.idAlimento} value={a.idAlimento}>
                               {a.nombre}
@@ -1093,7 +1093,7 @@ export default function Recetas() {
                             }}
                             className="border rounded-md px-2 py-1.5 text-sm bg-surface"
                           >
-                            <option value="">Elegí categoría...</option>
+                            <option value="">Elige categoría...</option>
                             {categoriasAlimento.map((nombre) => (
                               <option key={nombre} value={nombre}>
                                 {nombre}
@@ -1284,7 +1284,7 @@ export default function Recetas() {
       <ConfirmacionModal
         abierto={!!idAEliminar}
         titulo="Eliminar receta"
-        mensaje="¿Seguro que querés eliminar esta receta? Los alimentos usados como ingredientes no se borran."
+        mensaje="¿Seguro que quieres eliminar esta receta? Los alimentos usados como ingredientes no se borran."
         onConfirmar={eliminar}
         onCancelar={() => setIdAEliminar(null)}
       />
