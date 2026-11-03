@@ -15,6 +15,7 @@ export default function Login() {
   const [modo, setModo] = useState<Modo>("login");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
   const [nombre, setNombre] = useState("");
   const [error, setError] = useState("");
   const [info, setInfo] = useState("");
@@ -27,12 +28,23 @@ export default function Login() {
     setModo(siguiente);
     setError("");
     setInfo("");
+    setConfirmPassword("");
   };
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
     setError("");
     setInfo("");
+    if (modo === "register") {
+      if (password.length < 6) {
+        setError("La contraseña debe tener al menos 6 caracteres");
+        return;
+      }
+      if (password !== confirmPassword) {
+        setError("Las contraseñas no coinciden");
+        return;
+      }
+    }
     setLoading(true);
     try {
       if (modo === "login") {
@@ -47,6 +59,7 @@ export default function Login() {
         );
         setModo("login");
         setPassword("");
+        setConfirmPassword("");
         return;
       }
       const msg = await forgotPassword(email.trim());
@@ -158,6 +171,28 @@ export default function Login() {
                 autoComplete={
                   modo === "register" ? "new-password" : "current-password"
                 }
+              />
+            </div>
+          )}
+
+          {modo === "register" && (
+            <div>
+              <label
+                htmlFor="confirmPassword"
+                className="mb-1.5 block text-sm font-medium text-ink"
+              >
+                Confirmar contraseña
+              </label>
+              <input
+                id="confirmPassword"
+                type="password"
+                value={confirmPassword}
+                onChange={(e) => setConfirmPassword(e.target.value)}
+                className="input-field"
+                placeholder="Repite la contraseña"
+                required
+                minLength={6}
+                autoComplete="new-password"
               />
             </div>
           )}
