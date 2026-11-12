@@ -4,16 +4,29 @@ import { AuthProvider, useAuth } from "./contexts/AuthContext";
 import { ThemeProvider } from "./contexts/ThemeContext";
 import Alimentos from "./pages/Alimentos";
 import Categorias from "./pages/Categorias";
+import Cuenta from "./pages/Cuenta";
 import Dashboard from "./pages/Dashboard";
 import Entrenamientos from "./pages/Entrenamientos";
 import Login from "./pages/Login";
+import MiCuenta from "./pages/MiCuenta";
+import Privacidad from "./pages/Privacidad";
 import Programas from "./pages/Programas";
 import Recetas from "./pages/Recetas";
 import ResetPassword from "./pages/ResetPassword";
+import Terminos from "./pages/Terminos";
 
-function ProtectedRoute({ children }: { children: ReactNode }) {
-  const { isAuthenticated } = useAuth();
-  return isAuthenticated ? <>{children}</> : <Navigate to="/login" />;
+function AdminRoute({ children }: { children: ReactNode }) {
+  const { isAuthenticated, isAdmin } = useAuth();
+  if (!isAuthenticated) return <Navigate to="/login" />;
+  if (!isAdmin) return <Navigate to="/mi-cuenta" replace />;
+  return <>{children}</>;
+}
+
+function UserOnlyRoute({ children }: { children: ReactNode }) {
+  const { isAuthenticated, isAdmin } = useAuth();
+  if (!isAuthenticated) return <Navigate to="/login" />;
+  if (isAdmin) return <Navigate to="/" replace />;
+  return <>{children}</>;
 }
 
 function AppRoutes() {
@@ -21,52 +34,70 @@ function AppRoutes() {
     <Routes>
       <Route path="/login" element={<Login />} />
       <Route path="/reset-password" element={<ResetPassword />} />
+      <Route path="/privacidad" element={<Privacidad />} />
+      <Route path="/terminos" element={<Terminos />} />
+      <Route
+        path="/mi-cuenta"
+        element={
+          <UserOnlyRoute>
+            <MiCuenta />
+          </UserOnlyRoute>
+        }
+      />
       <Route
         path="/"
         element={
-          <ProtectedRoute>
+          <AdminRoute>
             <Dashboard />
-          </ProtectedRoute>
+          </AdminRoute>
+        }
+      />
+      <Route
+        path="/cuenta"
+        element={
+          <AdminRoute>
+            <Cuenta />
+          </AdminRoute>
         }
       />
       <Route
         path="/alimentos"
         element={
-          <ProtectedRoute>
+          <AdminRoute>
             <Alimentos />
-          </ProtectedRoute>
+          </AdminRoute>
         }
       />
       <Route
         path="/entrenamientos"
         element={
-          <ProtectedRoute>
+          <AdminRoute>
             <Entrenamientos />
-          </ProtectedRoute>
+          </AdminRoute>
         }
       />
       <Route
         path="/categorias"
         element={
-          <ProtectedRoute>
+          <AdminRoute>
             <Categorias />
-          </ProtectedRoute>
+          </AdminRoute>
         }
       />
       <Route
         path="/programas"
         element={
-          <ProtectedRoute>
+          <AdminRoute>
             <Programas />
-          </ProtectedRoute>
+          </AdminRoute>
         }
       />
       <Route
         path="/recetas"
         element={
-          <ProtectedRoute>
+          <AdminRoute>
             <Recetas />
-          </ProtectedRoute>
+          </AdminRoute>
         }
       />
     </Routes>

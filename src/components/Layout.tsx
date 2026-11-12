@@ -15,6 +15,7 @@ const navItems = [
   { path: "/entrenamientos", label: "Entrenamientos", hint: "Ejercicios" },
   { path: "/categorias", label: "Categorías", hint: "Clasificación" },
   { path: "/programas", label: "Programas", hint: "Planes" },
+  { path: "/cuenta", label: "Cuenta", hint: "Perfil y baja" },
 ];
 
 export default function Layout({ children }: LayoutProps) {
@@ -24,8 +25,8 @@ export default function Layout({ children }: LayoutProps) {
   const navigate = useNavigate();
   const [menuAbierto, setMenuAbierto] = useState(false);
 
-  const handleLogout = () => {
-    logout();
+  const handleLogout = async () => {
+    await logout();
     navigate("/login");
   };
 

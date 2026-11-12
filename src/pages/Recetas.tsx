@@ -559,7 +559,7 @@ export default function Recetas() {
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               placeholder="Buscar por nombre..."
-              className="w-full sm:w-64 border border-line rounded-md px-3 py-2 text-sm"
+              className="input-field w-full sm:w-64"
             />
           </div>
         </div>

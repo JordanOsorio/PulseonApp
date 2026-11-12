@@ -48,8 +48,8 @@ export default function Login() {
     setLoading(true);
     try {
       if (modo === "login") {
-        await login(email.trim(), password);
-        navigate("/");
+        const authUser = await login(email.trim(), password);
+        navigate(authUser.isAdmin ? "/" : "/mi-cuenta");
         return;
       }
       if (modo === "register") {
@@ -273,6 +273,15 @@ export default function Login() {
               </Link>
             </p>
           )}
+          <p className="pt-2 text-xs">
+            <Link to="/privacidad" className="text-brand hover:underline">
+              Privacidad
+            </Link>
+            {" · "}
+            <Link to="/terminos" className="text-brand hover:underline">
+              Términos
+            </Link>
+          </p>
         </div>
       </div>
     </div>

@@ -47,6 +47,13 @@
   ::selection {
     @apply bg-brand/30;
   }
+
+  /* Inputs sin clase no heredan bien el color en dark mode */
+  input:not([type="checkbox"]):not([type="radio"]):not([type="file"]):not([type="range"]):not([type="color"]),
+  textarea,
+  select {
+    @apply bg-surface text-ink placeholder:text-muted/70;
+  }
 }
 
 @layer components {

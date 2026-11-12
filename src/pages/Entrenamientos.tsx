@@ -514,7 +514,7 @@ export default function Entrenamientos() {
               placeholder="Buscar por nombre..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="px-4 py-2 border border-line rounded-xl focus:ring-2 focus:ring-brand/40"
+              className="input-field max-w-xs"
             />
           </div>
 
