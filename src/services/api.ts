@@ -58,11 +58,13 @@ api.interceptors.response.use(
       url.includes("/auth/forgot-password") ||
       url.includes("/auth/reset-password");
 
-    if (
-      error.response?.status === 401 &&
-      !original?._retry &&
-      !esAuthPublica
-    ) {
+    const status = error.response?.status;
+    const msg = String(error.response?.data?.message || "");
+    const tokenVencido =
+      status === 401 ||
+      (status === 403 && /token inválido o expirado/i.test(msg));
+
+    if (tokenVencido && !original?._retry && !esAuthPublica) {
       original._retry = true;
       if (!refreshing) {
         refreshing = renovarAccessToken().finally(() => {
@@ -80,10 +82,7 @@ api.interceptors.response.use(
       }
     }
 
-    if (
-      (error.response?.status === 401 || error.response?.status === 403) &&
-      !esAuthPublica
-    ) {
+    if ((status === 401 || status === 403) && !esAuthPublica) {
       if (!localStorage.getItem(TOKEN_KEY) && window.location.pathname !== "/login") {
         window.location.href = "/login";
       }

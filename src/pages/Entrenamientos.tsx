@@ -525,127 +525,128 @@ export default function Entrenamientos() {
               No hay ejercicios cargados
             </div>
           ) : (
-            <div className="overflow-x-auto">
-              <table className="min-w-full divide-y divide-line">
-                <thead className="bg-canvas">
-                  <tr>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-muted uppercase tracking-wider">
-                      Nombre
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-muted uppercase tracking-wider">
-                      Categoría
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-muted uppercase tracking-wider">
-                      Músculos
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-muted uppercase tracking-wider">
-                      Equipos
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-muted uppercase tracking-wider">
-                      Acciones
-                    </th>
-                  </tr>
-                </thead>
-                <tbody className="bg-surface divide-y divide-line">
-                  {ejercicios.map((ejercicio) => (
-                    <tr key={ejercicio.idEjercicio}>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-ink">
+            <div className="grid gap-3 grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6">
+              {ejercicios.map((ejercicio) => {
+                const thumb =
+                  ejercicio.imagenStorageUrl ||
+                  ejercicio.imagenUrl ||
+                  null;
+                return (
+                  <div
+                    key={ejercicio.idEjercicio}
+                    className="bg-surface border rounded-xl overflow-hidden shadow-panel dark:shadow-panel-dark flex flex-col"
+                  >
+                    {thumb ? (
+                      <img
+                        src={urlMedia(thumb)}
+                        alt={ejercicio.nombre}
+                        className="w-full h-28 object-cover"
+                        loading="lazy"
+                      />
+                    ) : (
+                      <div className="w-full h-28 bg-accent-soft flex items-center justify-center text-2xl text-muted">
+                        ·
+                      </div>
+                    )}
+                    <div className="p-2.5 flex flex-col flex-1 min-w-0">
+                      <h3
+                        className="text-sm font-semibold text-ink leading-snug line-clamp-2"
+                        title={ejercicio.nombre}
+                      >
                         {ejercicio.nombre}
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-muted">
-                        {ejercicio.categoria?.nombre || "-"}
-                      </td>
-                      <td className="px-6 py-4 text-sm text-muted">
+                      </h3>
+                      <p className="text-[11px] text-muted mt-0.5 truncate">
+                        {ejercicio.categoria?.nombre || "Sin categoría"}
+                      </p>
+                      <p className="text-[11px] text-muted mt-1 line-clamp-2">
                         {ejercicio.musculos && ejercicio.musculos.length > 0
                           ? ejercicio.musculos
                               .map((m) => m.musculo.nombre)
+                              .slice(0, 3)
                               .join(", ")
-                          : "-"}
-                      </td>
-                      <td className="px-6 py-4 text-sm text-muted">
-                        {ejercicio.equipos && ejercicio.equipos.length > 0
-                          ? ejercicio.equipos
-                              .map((e) => e.equipo.nombre)
-                              .join(", ")
-                          : "-"}
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-muted">
-                        <div className="flex space-x-2">
-                          <button
-                            onClick={() => {
-                              setSelectedEjercicio(ejercicio);
-                              setShowDetailsModal(true);
-                            }}
-                            className="text-brand hover:opacity-80 focus:outline-none"
-                            title="Ver detalles"
+                          : "Sin músculos"}
+                      </p>
+                      {ejercicio.videoStorageUrl && (
+                        <p className="text-[10px] text-brand mt-1">Video</p>
+                      )}
+                      <div className="mt-auto pt-2 flex items-center gap-2">
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setSelectedEjercicio(ejercicio);
+                            setShowDetailsModal(true);
+                          }}
+                          className="text-brand hover:opacity-80 focus:outline-none"
+                          title="Ver detalles"
+                        >
+                          <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            className="h-4 w-4"
+                            fill="none"
+                            viewBox="0 0 24 24"
+                            stroke="currentColor"
                           >
-                            <svg
-                              xmlns="http://www.w3.org/2000/svg"
-                              className="h-5 w-5"
-                              fill="none"
-                              viewBox="0 0 24 24"
-                              stroke="currentColor"
-                            >
-                              <path
-                                strokeLinecap="round"
-                                strokeLinejoin="round"
-                                strokeWidth={2}
-                                d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
-                              />
-                              <path
-                                strokeLinecap="round"
-                                strokeLinejoin="round"
-                                strokeWidth={2}
-                                d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
-                              />
-                            </svg>
-                          </button>
-                          <button
-                            onClick={() => handleEdit(ejercicio)}
-                            className="text-green-600 hover:text-green-800 focus:outline-none"
-                            title="Editar"
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              strokeWidth={2}
+                              d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
+                            />
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              strokeWidth={2}
+                              d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
+                            />
+                          </svg>
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => handleEdit(ejercicio)}
+                          className="text-green-600 hover:text-green-800 focus:outline-none"
+                          title="Editar"
+                        >
+                          <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            className="h-4 w-4"
+                            fill="none"
+                            viewBox="0 0 24 24"
+                            stroke="currentColor"
                           >
-                            <svg
-                              xmlns="http://www.w3.org/2000/svg"
-                              className="h-5 w-5"
-                              fill="none"
-                              viewBox="0 0 24 24"
-                              stroke="currentColor"
-                            >
-                              <path
-                                strokeLinecap="round"
-                                strokeLinejoin="round"
-                                strokeWidth={2}
-                                d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
-                              />
-                            </svg>
-                          </button>
-                          <button
-                            onClick={() => setIdAEliminar(ejercicio.idEjercicio)}
-                            className="text-red-600 hover:text-red-800 focus:outline-none"
-                            title="Eliminar"
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              strokeWidth={2}
+                              d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
+                            />
+                          </svg>
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => setIdAEliminar(ejercicio.idEjercicio)}
+                          className="text-red-600 hover:text-red-800 focus:outline-none"
+                          title="Eliminar"
+                        >
+                          <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            className="h-4 w-4"
+                            fill="none"
+                            viewBox="0 0 24 24"
+                            stroke="currentColor"
                           >
-                            <svg
-                              xmlns="http://www.w3.org/2000/svg"
-                              className="h-5 w-5"
-                              fill="none"
-                              viewBox="0 0 24 24"
-                              stroke="currentColor"
-                            >
-                              <path
-                                strokeLinecap="round"
-                                strokeLinejoin="round"
-                                strokeWidth={2}
-                                d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
-                              />
-                            </svg>
-                          </button>
-                        </div>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              strokeWidth={2}
+                              d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
+                            />
+                          </svg>
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
             </div>
           )}
 
